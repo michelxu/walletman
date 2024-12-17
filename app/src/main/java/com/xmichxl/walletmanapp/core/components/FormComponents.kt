@@ -1,5 +1,7 @@
 package com.xmichxl.walletmanapp.core.components
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -31,11 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.xmichxl.walletmanapp.core.utils.filterDecimals
+import java.util.Calendar
 
 @Composable
 fun MainTextField(
@@ -196,6 +200,104 @@ fun DropdownTextField(
             }
         }
     }
+}
+
+
+@Composable
+fun DatePickerTextField(
+    label: String,
+    date: String,
+    onValueChange: (String) -> Unit,
+    isErrorMsg: Boolean = false
+) {
+    val context = LocalContext.current
+
+    // State to control the dialogs
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    // Temporary state to hold the selected date and time parts
+    var selectedYear by remember { mutableStateOf(0) }
+    var selectedMonth by remember { mutableStateOf(0) }
+    var selectedDay by remember { mutableStateOf(0) }
+    var selectedHour by remember { mutableStateOf(0) }
+    var selectedMinute by remember { mutableStateOf(0) }
+
+
+    // Open the DatePickerDialog
+    if (showDatePicker) {
+        val calendar = Calendar.getInstance()
+
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                selectedYear = year
+                selectedMonth = month
+                selectedDay = dayOfMonth
+                showDatePicker = false
+                showTimePicker = true // Open time picker after date is selected
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            setOnCancelListener { showDatePicker = false }
+            show()
+        }
+    }
+
+    if (showTimePicker) {
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                selectedHour = hourOfDay
+                selectedMinute = minute
+                showTimePicker = false
+                // Combine date and time into final format
+                val formattedDateTime = String.format(
+                    "%02d-%02d-%04d %02d:%02d",
+                    selectedDay,
+                    selectedMonth + 1,
+                    selectedYear,
+                    selectedHour,
+                    selectedMinute
+                )
+                onValueChange(formattedDateTime)
+            },
+            Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+            Calendar.getInstance().get(Calendar.MINUTE),
+            true // Use 24-hour format
+        ).apply {
+            setOnCancelListener { showTimePicker = false }
+            show()
+        }
+    }
+
+    // TextField to display the selected date
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 30.dp)
+            .padding(bottom = 15.dp)
+            .clickable { showDatePicker = true }
+    ){
+        OutlinedTextField(
+            value = date, // Show placeholder if empty
+            onValueChange = {}, // Prevent manual input
+            readOnly = true,
+            label = { Text(label) },
+            placeholder = { Text("Select a date") }, // Optional
+            isError = isErrorMsg,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize() // Ensures the Box covers the entire TextField
+                .clickable { showDatePicker = true }
+        )
+    }
+
 }
 
 

@@ -16,7 +16,10 @@ import com.xmichxl.walletmanapp.ui.theme.CColorSecondaryMagenta
 import com.xmichxl.walletmanapp.ui.theme.CColorSecondaryRed
 import com.xmichxl.walletmanapp.ui.theme.CColorSecondaryYellow
 import com.xmichxl.walletmanapp.ui.theme.CColorYellow
+import java.text.SimpleDateFormat
 import java.time.Instant
+import java.util.Date
+import java.util.Locale
 
 fun getColorsFromString(colorName: String): Pair<Color, Color> {
     return when (colorName) {
@@ -41,6 +44,12 @@ fun getCurrentTimestamp(): String{
         sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
         sdf.format(java.util.Date())
     }
+}
+
+// Returns the current date and time in "dd-MM-yyyy HH:mm" format (e.g., "15-04-2024 14:30")
+fun getCurrentDateTime(): String {
+    val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+    return sdf.format(Date())
 }
 
 fun formatMoney(balance: Double): String {

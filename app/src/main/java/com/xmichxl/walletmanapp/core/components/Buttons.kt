@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.xmichxl.walletmanapp.core.utils.AppIcons
 
 @Composable
 fun FloatButton(onClick: () -> Unit) {
@@ -31,7 +32,7 @@ fun FloatButton(onClick: () -> Unit) {
         contentColor = Color.White
     ) {
         Icon(
-            imageVector = Icons.Default.Add,
+            imageVector = AppIcons.Main.Add,
             contentDescription = "Agregar"
         )
     }

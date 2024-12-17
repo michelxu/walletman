@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -23,15 +25,18 @@ import com.xmichxl.walletmanapp.core.components.AccountsCarousel
 import com.xmichxl.walletmanapp.core.components.BodyTitleSection
 import com.xmichxl.walletmanapp.core.components.BottomNavigationBar
 import com.xmichxl.walletmanapp.core.components.FloatButton
+import com.xmichxl.walletmanapp.core.components.LastTransactions
 import com.xmichxl.walletmanapp.core.components.MainTitle
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
+import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(
     navController: NavController,
     modifier: Modifier,
-    accountViewModel: AccountViewModel
+    accountViewModel: AccountViewModel,
+    transactionViewModel: TransactionViewModel
 ) {
     var selectedItemBottomBar by remember { mutableIntStateOf(0) }
 
@@ -39,11 +44,9 @@ fun HomeView(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { MainTitle(title = "Home") },
-                Modifier.padding(top = 5.dp)
-                /*
+                Modifier.padding(top = 0.dp),
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary)
-                    */
             )
         },
         bottomBar = {
@@ -59,7 +62,7 @@ fun HomeView(
             }
         }
     ) {
-        ContentHomeView(it, navController, accountViewModel)
+        ContentHomeView(it, navController, accountViewModel, transactionViewModel)
     }
 }
 
@@ -68,13 +71,17 @@ fun HomeView(
 fun ContentHomeView(
     it: PaddingValues,
     navController: NavController,
-    accountViewModel: AccountViewModel
+    accountViewModel: AccountViewModel,
+    transactionViewModel: TransactionViewModel
 ) {
     val accountList by accountViewModel.accountList.collectAsState()
+    val transactionList by transactionViewModel.transactionList.collectAsState()
 
     Column(modifier = Modifier.padding(it)) {
         AccountsCarousel(accountList, navController)
 
         BodyTitleSection(onClick = { /*TODO*/ }, title = "Transactions", onClickTitle = "View all")
+
+        LastTransactions(transactionList, navController)
     }
 }

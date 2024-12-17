@@ -39,6 +39,7 @@ import com.xmichxl.walletmanapp.core.components.NumericTextField
 import com.xmichxl.walletmanapp.core.components.WarningFormText
 import com.xmichxl.walletmanapp.core.utils.AccountType
 import com.xmichxl.walletmanapp.core.utils.AppConstants
+import com.xmichxl.walletmanapp.core.utils.AppIcons
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_BALANCE
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CREDIT_LIMIT
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_NAME
@@ -71,7 +72,7 @@ fun AccountEditView(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
                 navigationIcon = {
-                    MainIconButton(icon = Icons.AutoMirrored.Filled.ArrowBack) {
+                    MainIconButton(icon = AppIcons.Main.Back) {
                         navController.popBackStack()
                     }
                 },
@@ -83,7 +84,7 @@ fun AccountEditView(
                             navController.popBackStack()
                         }) {
                             Icon(
-                                imageVector = Icons.Default.Delete,
+                                imageVector = AppIcons.Main.Delete,
                                 contentDescription = "Delete Account",
                                 tint = Color.White
                             )
@@ -118,7 +119,7 @@ fun ContentAccountEditView(
     var name by remember { mutableStateOf(selectedAccount.name) }
     var number by remember { mutableStateOf(selectedAccount.number ?: "") }
     var balance by remember { mutableStateOf(selectedAccount.balance.toString()) }
-    var creditLimit by remember { mutableStateOf(selectedAccount.creditLimit?.toString() ?: "") }
+    var creditLimit by remember { mutableStateOf(selectedAccount.creditLimit?.toString() ?: "") } // Safely convert or default to empty string
     var type by remember { mutableStateOf(selectedAccount.type) }
     var selectedColor by remember { mutableStateOf(selectedAccount.color) }
 
