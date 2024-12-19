@@ -17,7 +17,7 @@ interface AccountDao {
     fun getAccountById(id: Int): Flow<Account>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(account: Account)
+    suspend fun insert(account: Account): Long // Returns new ID created
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(account: Account)

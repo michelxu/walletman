@@ -24,13 +24,18 @@ class TransactionRepository @Inject constructor(private val transactionDao: Tran
 
     fun getAllTransactions(): Flow<List<Transaction>> {
         return transactionDao.getAllTransactions()
-            .flowOn(Dispatchers.IO)
-            .conflate()
     }
 
     fun getTransactionById(id: Long): Flow<Transaction> {
         return transactionDao.getTransactionById(id)
-            .flowOn(Dispatchers.IO)
-            .conflate()
+    }
+
+    // Linked tables Transaction With Accounts
+    fun getAllTransactionsWithAccounts(): Flow<List<TransactionWithAccounts>> {
+        return transactionDao.getAllTransactionsWithAccounts()
+    }
+
+    fun getTransactionWithAccountById(id: Long): Flow<TransactionWithAccounts> {
+        return transactionDao.getTransactionWithAccountsById(id)
     }
 }

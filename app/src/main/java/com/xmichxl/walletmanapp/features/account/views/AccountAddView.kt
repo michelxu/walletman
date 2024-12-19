@@ -152,6 +152,7 @@ fun ContentAccountAddView(
                     }
 
                     else -> {
+                        /*
                         accountViewModel.addAccount(
                             Account(
                                 name = name,
@@ -161,6 +162,17 @@ fun ContentAccountAddView(
                                 creditLimit = creditLimit.toIntOrNull(),
                                 color = selectedColor
                             )
+                        )*/
+                        accountViewModel.createAccountWithTransaction(
+                            Account(
+                                name = name,
+                                number = number,
+                                type = type,
+                                balance = balance.toDouble(),
+                                creditLimit = creditLimit.toIntOrNull(),
+                                color = selectedColor
+                            ),
+                            balance.toDouble()
                         )
                         navController.popBackStack()
                     }

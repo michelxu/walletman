@@ -174,16 +174,16 @@ fun ContentTransactionAddView(
                     description.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION
                     amount.isBlank() -> errorMessage = FORM_ERROR_AMOUNT
                     else -> {
-                        transactionViewModel.addTransaction(
-                            Transaction(
-                                type = type,
-                                description = description,
-                                amount = amount.toDouble(),
-                                date = date,
-                                accountToId = if(accountTo.isNotBlank()) accountTo.toInt() else null,
-                                accountFromId = if (accountFrom.isNotBlank()) accountFrom.toInt() else null
-                            )
+                        val newTransaction = Transaction(
+                            type = type,
+                            description = description,
+                            amount = amount.toDouble(),
+                            date = date,
+                            accountToId = if(accountTo.isNotBlank()) accountTo.toInt() else null,
+                            accountFromId = if (accountFrom.isNotBlank()) accountFrom.toInt() else null
                         )
+
+                        transactionViewModel.createTransactionAndUpdateBalance(newTransaction)
                         navController.popBackStack()
                     }
                 }

@@ -97,7 +97,7 @@ object AppIcons {
         val Income = R.drawable.income
         val Expense = R.drawable.expense
         val Transfer = R.drawable.transfer
-        val Adjustment = Icons.Default.Refresh
+        val Adjustment = R.drawable.adjustment
     }
 
     object PaymentMethod {

@@ -82,7 +82,7 @@ fun TransactionEditView(
                     // Only show delete button if selectedAccount is not null
                     selectedTransaction?.let {
                         IconButton(onClick = {
-                            transactionViewModel.deleteTransaction(it)
+                            transactionViewModel.deleteTransactionAndUpdateBalance(it)
                             navController.popBackStack()
                         }) {
                             Icon(
@@ -141,12 +141,12 @@ fun ContentEditAddView(
 
     Column(modifier = Modifier.padding(it)) {
         // ********************* ACCOUNT TYPE
-        DropdownTextField(
+        MainTextField(
             value = type,
             onValueChange = { type = it },
-            list = transactionTypes,
-            label = "Transaction Type"
-        )
+            label = "Transaction Type",
+            isEnabled = false
+            )
 
         // ********************* DESCRIPTION
         MainTextField(
@@ -182,32 +182,24 @@ fun ContentEditAddView(
         // ********************* ACCOUNT FROM
         if (type == TransactionType.EXPENSE.value || type == TransactionType.TRANSFER.value)
         {
-            DropdownTextField(
+            MainTextField(
                 value = accountFrom,
-                onValueChange = {
-                    accountFrom = it
-                    if (type != TransactionType.TRANSFER.value) accountTo = ""
-                },
-                list = testMyAccounts,
-                label = "Account From"
+                onValueChange = { accountFrom = it },
+                label = "Account From",
+                isEnabled = false
             )
         }
 
         // ********************* ACCOUNT TO
         if (type == TransactionType.INCOME.value || type == TransactionType.TRANSFER.value)
         {
-            DropdownTextField(
+            MainTextField(
                 value = accountTo,
-                onValueChange = {
-                    accountTo = it
-                    if (type != TransactionType.TRANSFER.value) accountFrom = ""
-                },
-                list = testMyAccounts,
-                label = "Account To"
+                onValueChange = { accountTo = it },
+                label = "Account To",
+                isEnabled = false
             )
         }
-
-
 
         // ********************* ADD BUTTON
         ButtonAtBottom(
@@ -218,18 +210,18 @@ fun ContentEditAddView(
                     description.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION
                     amount.isBlank() -> errorMessage = FORM_ERROR_AMOUNT
                     else -> {
-                        transactionViewModel.updateTransaction(
-                            Transaction(
-                                id = id,
-                                type = type,
-                                description = description,
-                                amount = amount.toDouble(),
-                                date = date,
-                                accountToId = if(accountTo.isNotBlank()) accountTo.toInt() else null,
-                                accountFromId = if (accountFrom.isNotBlank()) accountFrom.toInt() else null,
-                                lastUpdated = getCurrentTimestamp()
-                            )
+                        val newTransaction = Transaction(
+                            id = id,
+                            type = type,
+                            description = description,
+                            amount = amount.toDouble(),
+                            date = date,
+                            accountToId = if(accountTo.isNotBlank()) accountTo.toInt() else null,
+                            accountFromId = if (accountFrom.isNotBlank()) accountFrom.toInt() else null,
+                            lastUpdated = getCurrentTimestamp()
                         )
+
+                        transactionViewModel.updateTransactionAndUpdateBalance(newTransaction)
                         navController.popBackStack()
                     }
                 }

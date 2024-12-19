@@ -1,5 +1,6 @@
 package com.xmichxl.walletmanapp.core.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -204,7 +205,12 @@ fun TransactionItem(transaction: Transaction, onClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = if (transaction.type == "Expense") painterResource(AppIcons.Transaction.Expense) else painterResource(AppIcons.Transaction.Income), // Replace with relevant icon
+                painter = when(transaction.type) {
+                    TransactionType.EXPENSE.value -> painterResource(AppIcons.Transaction.Expense)
+                    TransactionType.INCOME.value -> painterResource(AppIcons.Transaction.Income)
+                    TransactionType.TRANSFER.value -> painterResource(AppIcons.Transaction.Transfer)
+                    else -> painterResource(AppIcons.Transaction.Adjustment)
+                }, // Replace with relevant icon
                 contentDescription = "Transaction Icon",
                 modifier = Modifier.size(24.dp), // Icon size
                 tint = Color.White // Icon color

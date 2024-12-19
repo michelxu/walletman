@@ -43,10 +43,13 @@ import com.xmichxl.walletmanapp.core.utils.AppIcons
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_BALANCE
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CREDIT_LIMIT
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_NAME
+import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.data.Account
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
+import com.xmichxl.walletmanapp.features.transaction.data.Transaction
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -210,9 +213,9 @@ fun ContentAccountEditView(
                     balance.isBlank() -> errorMessage = FORM_ERROR_BALANCE
                     type == AccountType.CREDIT.value && creditLimit.isBlank() -> {
                         errorMessage = FORM_ERROR_CREDIT_LIMIT
-                    } else -> {
-                    accountViewModel.updateAccount(
-                        Account(
+                    }
+                    else -> {
+                        val newAccount = Account(
                             id = id,
                             name = name,
                             number = number,
@@ -222,9 +225,15 @@ fun ContentAccountEditView(
                             color = selectedColor,
                             lastUpdated = getCurrentTimestamp()
                         )
-                    )
-                    navController.popBackStack()
-                }
+                        val isBalanceToBeUpdated = selectedAccount.balance.toString() != balance
+
+                        if (isBalanceToBeUpdated){
+                            accountViewModel.editAccountAndAdjustBalance(newAccount, selectedAccount.balance)
+                        } else{
+                            accountViewModel.updateAccount(newAccount)
+                        }
+                        navController.popBackStack()
+                    }
                 }
             },
             title = "Update Account"

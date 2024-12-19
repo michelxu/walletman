@@ -1,17 +1,37 @@
 package com.xmichxl.walletmanapp.features.transaction.data
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
+import com.xmichxl.walletmanapp.features.account.data.Account
 
-@Entity(tableName = "transactions")
+@Entity(
+    tableName = "transactions",
+    foreignKeys = [
+        ForeignKey(
+            entity = Account::class,
+            parentColumns = ["id"],
+            childColumns = ["accountFromId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Account::class,
+            parentColumns = ["id"],
+            childColumns = ["accountToId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("accountFromId"), Index("accountToId")]
+)
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val amount: Double,
     val description: String,
     val date: String,                               // Store as ISO-8601 format (e.g., "2024-01-01")
-    val type: String,                    // "Income", "Expense", "Transfer", "Adjustment"
+    val type: String,                               // "Income", "Expense", "Transfer", "Adjustment"
 
     val accountFromId: Int? = null,                 // Nullable for income
     val accountToId: Int? = null,                   // Nullable for expenses
