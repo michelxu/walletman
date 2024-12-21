@@ -40,6 +40,8 @@ const val FORM_ERROR_DESCRIPTION = "Description cannot be empty"
 const val FORM_ERROR_DATE = "Date cannot be empty"
 const val FORM_ERROR_ACCOUNT_FROM = "Account From type cannot be empty"
 const val FORM_ERROR_ACCOUNT_TO = "Account To type cannot be empty"
+const val FORM_ERROR_CATEGORY = "Category type cannot be empty"
+const val FORM_ERROR_SUBCATEGORY = "Subcategory type cannot be empty"
 
 
 enum class AccountStatus(val value: Int) {

@@ -47,10 +47,10 @@ class AccountTransactionRepository(
             // Fetch the old transaction from the database
             val oldTransaction = transactionDao.getTransactionById(transaction.id).first()
 
-            // Update the transaction in the database
+            // 1. Update the transaction in the database
             transactionDao.update(transaction)
 
-            // Adjust the account balance using the old and new amounts
+            // 2. Adjust the account balance using the old and new amounts
             updateAccountBalance(transaction, oldTransaction.amount)
         }
     }

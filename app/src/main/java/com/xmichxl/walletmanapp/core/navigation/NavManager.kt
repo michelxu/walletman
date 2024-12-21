@@ -11,6 +11,8 @@ import com.xmichxl.walletmanapp.core.views.HomeView
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.account.views.AccountAddView
 import com.xmichxl.walletmanapp.features.account.views.AccountEditView
+import com.xmichxl.walletmanapp.features.category.viewmodels.CategoryViewModel
+import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewModel
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 import com.xmichxl.walletmanapp.features.transaction.views.TransactionAddView
 import com.xmichxl.walletmanapp.features.transaction.views.TransactionEditView
@@ -19,7 +21,9 @@ import com.xmichxl.walletmanapp.features.transaction.views.TransactionEditView
 fun NavManager(
     modifier: Modifier,
     accountViewModel: AccountViewModel,
-    transactionViewModel: TransactionViewModel
+    transactionViewModel: TransactionViewModel,
+    categoryViewModel: CategoryViewModel,
+    subcategoryViewModel: SubcategoryViewModel
 ) {
 
     val navController = rememberNavController()
@@ -42,13 +46,13 @@ fun NavManager(
 
         // ************ TRANSACTION
         composable("TransactionAddView") {
-            TransactionAddView(navController, modifier, transactionViewModel)
+            TransactionAddView(navController, modifier, transactionViewModel, accountViewModel, categoryViewModel)
         }
         composable("TransactionEditView/{id}", arguments = listOf(
             navArgument("id") { type = NavType.LongType }
         )) {
             val id = it.arguments?.getLong("id") ?: 0
-            TransactionEditView(navController, modifier, transactionViewModel, id)
+            TransactionEditView(navController, modifier, transactionViewModel, accountViewModel, id)
         }
     }
 }

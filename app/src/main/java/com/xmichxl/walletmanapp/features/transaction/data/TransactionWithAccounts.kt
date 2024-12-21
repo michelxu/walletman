@@ -5,7 +5,7 @@ import androidx.room.Relation
 import com.xmichxl.walletmanapp.features.account.data.Account
 
 data class TransactionWithAccounts(
-    @Embedded val transaction: Transaction,
+    @Embedded val details: Transaction,
     @Relation(parentColumn = "accountFromId", entityColumn = "id")
     val accountFrom: Account?,
     @Relation(parentColumn = "accountToId", entityColumn = "id")
