@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import com.xmichxl.walletmanapp.core.room.AppDatabase
 import com.xmichxl.walletmanapp.features.account.data.AccountDao
+import com.xmichxl.walletmanapp.features.category.data.CategoryDao
 import com.xmichxl.walletmanapp.features.shared.data.AccountTransactionRepository
+import com.xmichxl.walletmanapp.features.subcategory.data.SubcategoryDao
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionDao
 import dagger.Module
 import dagger.Provides
@@ -33,11 +35,22 @@ class AppModule {
         return appDatabase.accountDao()
     }
 
-    // Provide the TransactionDao
     @Singleton
     @Provides
     fun provideTransactionDao(appDatabase: AppDatabase): TransactionDao {
         return appDatabase.transactionDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideCategoryDao(appDatabase: AppDatabase): CategoryDao {
+        return appDatabase.categoryDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideSubcategoryDao(appDatabase: AppDatabase): SubcategoryDao {
+        return appDatabase.subcategoryDao()
     }
 
     // Provide the Room Database

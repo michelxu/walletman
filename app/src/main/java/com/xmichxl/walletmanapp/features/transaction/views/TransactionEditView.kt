@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,23 +27,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.xmichxl.walletmanapp.core.components.ButtonAtBottom
 import com.xmichxl.walletmanapp.core.components.DatePickerTextField
-import com.xmichxl.walletmanapp.core.components.DropdownTextField
 import com.xmichxl.walletmanapp.core.components.MainIconButton
 import com.xmichxl.walletmanapp.core.components.MainTextField
 import com.xmichxl.walletmanapp.core.components.MainTitle
 import com.xmichxl.walletmanapp.core.components.NumericTextField
 import com.xmichxl.walletmanapp.core.components.WarningFormText
-import com.xmichxl.walletmanapp.core.utils.AppConstants
 import com.xmichxl.walletmanapp.core.utils.AppIcons
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_ACCOUNT_FROM
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_ACCOUNT_TO
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_AMOUNT
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DATE
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DESCRIPTION
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_TRANSACTION
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
 import com.xmichxl.walletmanapp.core.utils.validateInput
+import com.xmichxl.walletmanapp.features.account.data.Account
+import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
@@ -56,15 +49,29 @@ fun TransactionEditView(
     navController: NavController,
     modifier: Modifier,
     transactionViewModel: TransactionViewModel,
-    id: Long
+    accountViewModel: AccountViewModel,
+    id: Long,
 ) {
     // Observe the selected account
     val selectedTransaction by transactionViewModel.selectedTransaction.collectAsState()
+    val selectedAccountFrom by accountViewModel.selectedAccountFrom.collectAsState()
+    val selectedAccountTo by accountViewModel.selectedAccountTo.collectAsState()
 
     // Trigger account loading when the screen is opened
     LaunchedEffect(Unit) {
         transactionViewModel.getTransactionById(id)
     }
+
+    // Trigger loading of the associated accounts
+    LaunchedEffect(selectedTransaction) {
+        selectedTransaction?.accountFromId?.let { accountViewModel.getAccountFromById(it) }
+        selectedTransaction?.accountToId?.let { accountViewModel.getAccountToById(it) }
+    }
+
+    // Determine if the data is loading
+    val isLoading = selectedTransaction == null ||
+            (selectedTransaction?.accountFromId != null && selectedAccountFrom == null) ||
+            (selectedTransaction?.accountToId != null && selectedAccountTo == null)
 
     Scaffold(
         topBar = {
@@ -96,7 +103,23 @@ fun TransactionEditView(
             )
         }
     ) {
-        ContentEditAddView(it, navController, transactionViewModel, id, selectedTransaction)
+        if (isLoading) {
+            // Show a loading indicator if the data is not ready
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            // Pass the data to the child composable
+            ContentEditAddView(
+                it,
+                navController = navController,
+                transactionViewModel = transactionViewModel,
+                id = id,
+                selectedTransaction = selectedTransaction,
+                selectedAccountFrom = selectedAccountFrom,
+                selectedAccountTo = selectedAccountTo
+            )
+        }
     }
 }
 
@@ -107,52 +130,51 @@ fun ContentEditAddView(
     navController: NavController,
     transactionViewModel: TransactionViewModel,
     id: Long,
-    selectedTransaction: Transaction?
+    selectedTransaction: Transaction?,
+    selectedAccountFrom: Account?,
+    selectedAccountTo: Account?,
 ) {
-    if (selectedTransaction == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
     // Use derived state for fields
-    var type by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
-    var accountFrom by remember { mutableStateOf("") }
-    var accountTo by remember { mutableStateOf("") }
+    var typeState by remember { mutableStateOf("") }
+    var descriptionState by remember { mutableStateOf("") }
+    var amountState by remember { mutableStateOf("") }
+    var dateState by remember { mutableStateOf("") }
+    var accountFromState by remember { mutableStateOf("") }
+    var accountToState by remember { mutableStateOf("") }
+
+    var accountFromStateId by remember { mutableStateOf("") }
+    var accountToStateId by remember { mutableStateOf("") }
+
+
+    // Update state reactively when dependencies change
+    LaunchedEffect(selectedTransaction, selectedAccountFrom, selectedAccountTo) {
+        typeState = selectedTransaction?.type ?: ""
+        descriptionState = selectedTransaction?.description ?: ""
+        amountState = selectedTransaction?.amount?.toString() ?: ""
+        dateState = selectedTransaction?.date ?: ""
+        accountFromState = selectedAccountFrom?.name ?: ""
+        accountToState = selectedAccountTo?.name ?: ""
+
+        accountFromStateId = selectedAccountFrom?.id.toString()
+        accountToStateId = selectedAccountTo?.id.toString()
+    }
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    val transactionTypes = AppConstants.transactionTypes
-    val testMyAccounts = listOf("1", "2", "3")
-
-    // Update state whenever selectedAccount changes
-    LaunchedEffect(selectedTransaction) {
-        type = selectedTransaction.type
-        description = selectedTransaction.description
-        amount = selectedTransaction.amount.toString()
-        date = selectedTransaction.date
-        accountFrom = selectedTransaction.accountFromId?.toString() ?: "" // Safely convert or default to empty string
-        accountTo = selectedTransaction.accountToId?.toString() ?: ""     // Safely convert or default to empty string
-    }
 
     Column(modifier = Modifier.padding(it)) {
         // ********************* ACCOUNT TYPE
         MainTextField(
-            value = type,
-            onValueChange = { type = it },
+            value = typeState,
+            onValueChange = { typeState = it },
             label = "Transaction Type",
             isEnabled = false
-            )
+        )
 
         // ********************* DESCRIPTION
         MainTextField(
-            value = description,
+            value = descriptionState,
             onValueChange = {
-                description = validateInput(it, maxLength = 60)
+                descriptionState = validateInput(it, maxLength = 60)
             },
             label = "Description",
             isErrorMsg = errorMessage == FORM_ERROR_DESCRIPTION
@@ -161,8 +183,8 @@ fun ContentEditAddView(
 
         // ********************* AMOUNT
         NumericTextField(
-            value = amount,
-            onValueChange = { amount = it },
+            value = amountState,
+            onValueChange = { amountState = it },
             label = "Amount",
             maxLength = 9,
             allowDecimals = true,
@@ -173,29 +195,27 @@ fun ContentEditAddView(
         // ********************* DATE
         DatePickerTextField(
             label = "Select Date",
-            date = date,
+            date = dateState,
             onValueChange = { newDate ->
-                date = newDate
+                dateState = newDate
             }
         )
 
         // ********************* ACCOUNT FROM
-        if (type == TransactionType.EXPENSE.value || type == TransactionType.TRANSFER.value)
-        {
+        if (typeState == TransactionType.EXPENSE.value || typeState == TransactionType.TRANSFER.value) {
             MainTextField(
-                value = accountFrom,
-                onValueChange = { accountFrom = it },
+                value = accountFromState,
+                onValueChange = { accountFromState = it },
                 label = "Account From",
                 isEnabled = false
             )
         }
 
         // ********************* ACCOUNT TO
-        if (type == TransactionType.INCOME.value || type == TransactionType.TRANSFER.value)
-        {
+        if (typeState == TransactionType.INCOME.value || typeState == TransactionType.TRANSFER.value) {
             MainTextField(
-                value = accountTo,
-                onValueChange = { accountTo = it },
+                value = accountToState,
+                onValueChange = { accountToState = it },
                 label = "Account To",
                 isEnabled = false
             )
@@ -204,20 +224,20 @@ fun ContentEditAddView(
         // ********************* ADD BUTTON
         ButtonAtBottom(
             onClick = {
-                Log.d("Update transaction", selectedTransaction.toString())
+                Log.d("Update transaction", descriptionState)
                 when {
                     // VALIDATE FIELDS
-                    description.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION
-                    amount.isBlank() -> errorMessage = FORM_ERROR_AMOUNT
+                    descriptionState.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION
+                    amountState.isBlank() -> errorMessage = FORM_ERROR_AMOUNT
                     else -> {
                         val newTransaction = Transaction(
                             id = id,
-                            type = type,
-                            description = description,
-                            amount = amount.toDouble(),
-                            date = date,
-                            accountToId = if(accountTo.isNotBlank()) accountTo.toInt() else null,
-                            accountFromId = if (accountFrom.isNotBlank()) accountFrom.toInt() else null,
+                            type = typeState,
+                            description = descriptionState,
+                            amount = amountState.toDouble(),
+                            date = dateState,
+                            accountToId = if (accountToState.isNotBlank()) accountToStateId.toInt() else null,
+                            accountFromId = if (accountFromState.isNotBlank()) accountFromStateId.toInt() else null,
                             lastUpdated = getCurrentTimestamp()
                         )
 

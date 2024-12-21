@@ -28,6 +28,14 @@ class AccountViewModel @Inject constructor(
     private val _selectedAccount = MutableStateFlow<Account?>(null)
     val selectedAccount = _selectedAccount.asStateFlow()
 
+    // Account for transaction `accountFrom`
+    private val _selectedAccountFrom = MutableStateFlow<Account?>(null)
+    val selectedAccountFrom = _selectedAccountFrom.asStateFlow()
+
+    // Account for transaction `accountTo`
+    private val _selectedAccountTo = MutableStateFlow<Account?>(null)
+    val selectedAccountTo = _selectedAccountTo.asStateFlow()
+
     init {
         loadAccounts()
     }
@@ -41,10 +49,29 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    // Fetch the general selected account
     fun getAccountById(id: Int){
         viewModelScope.launch {
             repository.getAccountById(id).collect { account ->
                 _selectedAccount.value = account
+            }
+        }
+    }
+
+    // Fetch the account for `accountFrom`
+    fun getAccountFromById(id: Int) {
+        viewModelScope.launch {
+            repository.getAccountById(id).collect { account ->
+                _selectedAccountFrom.value = account
+            }
+        }
+    }
+
+    // Fetch the account for `accountTo`
+    fun getAccountToById(id: Int) {
+        viewModelScope.launch {
+            repository.getAccountById(id).collect { account ->
+                _selectedAccountTo.value = account
             }
         }
     }

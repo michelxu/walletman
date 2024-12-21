@@ -33,8 +33,8 @@ class TransactionViewModel @Inject constructor(
     val selectedTransactionWithAccount = _selectedTransactionWithAccount.asStateFlow()
 
     init {
-        loadTransactions()
-        //loadTransactionsWithAccounts()
+        //loadTransactions()
+        loadTransactionsWithAccounts()
     }
 
     // Function to load transactions

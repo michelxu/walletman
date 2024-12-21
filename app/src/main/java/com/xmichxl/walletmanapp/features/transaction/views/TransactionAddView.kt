@@ -9,15 +9,16 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.xmichxl.walletmanapp.core.components.AccountDropdownTextField
 import com.xmichxl.walletmanapp.core.components.ButtonAtBottom
 import com.xmichxl.walletmanapp.core.components.DatePickerTextField
 import com.xmichxl.walletmanapp.core.components.DropdownTextField
@@ -26,22 +27,15 @@ import com.xmichxl.walletmanapp.core.components.MainTextField
 import com.xmichxl.walletmanapp.core.components.MainTitle
 import com.xmichxl.walletmanapp.core.components.NumericTextField
 import com.xmichxl.walletmanapp.core.components.WarningFormText
-import com.xmichxl.walletmanapp.core.utils.AccountType
 import com.xmichxl.walletmanapp.core.utils.AppConstants
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_ACCOUNT
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_ACCOUNT_FROM
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_ACCOUNT_TO
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_AMOUNT
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_BALANCE
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CREDIT_LIMIT
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DATE
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DESCRIPTION
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_NAME
-import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_TRANSACTION
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentDateTime
 import com.xmichxl.walletmanapp.core.utils.validateInput
-import com.xmichxl.walletmanapp.features.account.data.Account
+import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
@@ -50,7 +44,8 @@ import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewM
 fun TransactionAddView(
     navController: NavController,
     modifier: Modifier,
-    transactionViewModel: TransactionViewModel
+    transactionViewModel: TransactionViewModel,
+    accountViewModel: AccountViewModel
 ) {
     Scaffold(topBar = {
         CenterAlignedTopAppBar(title = { MainTitle(title = "New Transaction") },
@@ -63,7 +58,7 @@ fun TransactionAddView(
                 }
             })
     }) {
-        ContentTransactionAddView(it, navController, transactionViewModel)
+        ContentTransactionAddView(it, navController, transactionViewModel, accountViewModel)
     }
 }
 
@@ -72,19 +67,23 @@ fun TransactionAddView(
 fun ContentTransactionAddView(
     it: PaddingValues,
     navController: NavController,
-    transactionViewModel: TransactionViewModel
+    transactionViewModel: TransactionViewModel,
+    accountViewModel: AccountViewModel
 ) {
     var type by remember { mutableStateOf("Expense") }
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var date by remember { mutableStateOf(getCurrentDateTime()) }
-    var accountFrom by remember { mutableStateOf("") }
-    var accountTo by remember { mutableStateOf("") }
+    var accountFromName by remember { mutableStateOf("") } //Store name to show in the DropDownTextBox
+    var accountFromId by remember { mutableStateOf("") } // Store id to save in the database
+    var accountToName by remember { mutableStateOf("") }
+    var accountToId by remember { mutableStateOf("") }
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    // Collect accounts from AccountViewModel
+    val accountList by accountViewModel.accountList.collectAsState()
     val transactionTypes = AppConstants.transactionTypes
-    val testMyAccounts = listOf("1", "2", "3")
 
     Column(modifier = Modifier.padding(it)) {
         // ********************* ACCOUNT TYPE
@@ -129,13 +128,14 @@ fun ContentTransactionAddView(
         // ********************* ACCOUNT FROM
         if (type == TransactionType.EXPENSE.value || type == TransactionType.TRANSFER.value)
         {
-            DropdownTextField(
-                value = accountFrom,
-                onValueChange = {
-                    accountFrom = it
-                    if (type != TransactionType.TRANSFER.value) accountTo = ""
+            AccountDropdownTextField(
+                value = accountFromName,
+                onValueChange = { name, id ->
+                    accountFromName = name
+                    accountFromId = id.toString()
+                    if (type != TransactionType.TRANSFER.value) accountToName = ""
                 },
-                list = testMyAccounts,
+                list = accountList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
                 label = "Account From",
                 isErrorMsg = errorMessage == FORM_ERROR_ACCOUNT_FROM
             )
@@ -145,13 +145,14 @@ fun ContentTransactionAddView(
         // ********************* ACCOUNT TO
         if (type == TransactionType.INCOME.value || type == TransactionType.TRANSFER.value)
         {
-            DropdownTextField(
-                value = accountTo,
-                onValueChange = {
-                    accountTo = it
-                    if (type != TransactionType.TRANSFER.value) accountFrom = ""
+            AccountDropdownTextField(
+                value = accountToName,
+                onValueChange = { name, id ->
+                    accountToName = name
+                    accountToId = id.toString()
+                    if (type != TransactionType.TRANSFER.value) accountFromName = ""
                 },
-                list = testMyAccounts,
+                list = accountList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
                 label = "Account To",
                 isErrorMsg = errorMessage == FORM_ERROR_ACCOUNT_TO
             )
@@ -165,10 +166,10 @@ fun ContentTransactionAddView(
             onClick = {
                 when {
                     // VALIDATE FIELDS
-                    type == TransactionType.EXPENSE.value && accountFrom.isBlank() || type == TransactionType.TRANSFER.value && accountFrom.isBlank() -> {
+                    type == TransactionType.EXPENSE.value && accountFromName.isBlank() || type == TransactionType.TRANSFER.value && accountFromName.isBlank() -> {
                         errorMessage = FORM_ERROR_ACCOUNT_FROM
                     }
-                    type == TransactionType.INCOME.value && accountTo.isBlank() || type == TransactionType.TRANSFER.value && accountTo.isBlank() -> {
+                    type == TransactionType.INCOME.value && accountToName.isBlank() || type == TransactionType.TRANSFER.value && accountToName.isBlank() -> {
                         errorMessage = FORM_ERROR_ACCOUNT_TO
                     }
                     description.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION
@@ -179,8 +180,8 @@ fun ContentTransactionAddView(
                             description = description,
                             amount = amount.toDouble(),
                             date = date,
-                            accountToId = if(accountTo.isNotBlank()) accountTo.toInt() else null,
-                            accountFromId = if (accountFrom.isNotBlank()) accountFrom.toInt() else null
+                            accountToId = if(accountToName.isNotBlank()) accountToId.toInt() else null,
+                            accountFromId = if (accountFromName.isNotBlank()) accountFromId.toInt() else null
                         )
 
                         transactionViewModel.createTransactionAndUpdateBalance(newTransaction)

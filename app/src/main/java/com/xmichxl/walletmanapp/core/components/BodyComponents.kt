@@ -1,6 +1,5 @@
 package com.xmichxl.walletmanapp.core.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -44,13 +38,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.xmichxl.walletmanapp.core.utils.AppConstants
 import com.xmichxl.walletmanapp.core.utils.AppIcons
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.formatMoney
 import com.xmichxl.walletmanapp.core.utils.getColorsFromString
 import com.xmichxl.walletmanapp.features.account.data.Account
-import com.xmichxl.walletmanapp.features.transaction.data.Transaction
+import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithAccounts
+import com.xmichxl.walletmanapp.features.transaction.utils.getAccountName
 
 @Composable
 fun MainTitle(title: String) {
@@ -171,7 +165,7 @@ fun AccountCard(
 }
 
 @Composable
-fun LastTransactions(transactions: List<Transaction>, navController: NavController) {
+fun LastTransactions(transactions: List<TransactionWithAccounts>, navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,14 +174,14 @@ fun LastTransactions(transactions: List<Transaction>, navController: NavControll
         items(transactions) { transaction ->
             TransactionItem(
                 transaction = transaction,
-                onClick = { navController.navigate("TransactionEditView/${transaction.id}") })
+                onClick = { navController.navigate("TransactionEditView/${transaction.details.id}") })
             //Spacer(modifier = Modifier.height(2.dp)) // Add spacing between items
         }
     }
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction, onClick: () -> Unit) {
+fun TransactionItem(transaction: TransactionWithAccounts, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -205,7 +199,7 @@ fun TransactionItem(transaction: Transaction, onClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = when(transaction.type) {
+                painter = when(transaction.details.type) {
                     TransactionType.EXPENSE.value -> painterResource(AppIcons.Transaction.Expense)
                     TransactionType.INCOME.value -> painterResource(AppIcons.Transaction.Income)
                     TransactionType.TRANSFER.value -> painterResource(AppIcons.Transaction.Transfer)
@@ -222,12 +216,12 @@ fun TransactionItem(transaction: Transaction, onClick: () -> Unit) {
         // Description and Details (center-aligned)
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = transaction.description ?: "No name",
+                text = transaction.details.description ?: "No name",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Account",
+                text = transaction.getAccountName(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -235,10 +229,10 @@ fun TransactionItem(transaction: Transaction, onClick: () -> Unit) {
 
         // Amount (on the right)
         Text(
-            text = if (transaction.type == TransactionType.EXPENSE.value)
-                "-$${transaction.amount}" else "+$${transaction.amount}",
+            text = if (transaction.details.type == TransactionType.EXPENSE.value)
+                "-$${transaction.details.amount}" else "+$${transaction.details.amount}",
             style = MaterialTheme.typography.bodyLarge,
-            color = if (transaction.type == TransactionType.EXPENSE.value)
+            color = if (transaction.details.type == TransactionType.EXPENSE.value)
                 MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 8.dp)
         )

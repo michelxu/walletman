@@ -202,6 +202,77 @@ fun DropdownTextField(
     }
 }
 
+@Composable
+fun AccountDropdownTextField(
+    value: String,
+    onValueChange: (String, Int?) -> Unit, // Add a way to return the ID
+    list: List<Pair<String, Int>>, // List of names and their IDs
+    label: String,
+    modifier: Modifier = Modifier,
+    isErrorMsg: Boolean = false
+) {
+    // Declaring a boolean value to store the expanded state of the Text Field
+    var mExpanded by remember { mutableStateOf(false) }
+    var mTextFieldSize by remember { mutableStateOf(Size.Zero) }
+
+    // Up Icon when expanded and down icon when collapsed
+    val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+
+    Column(
+        Modifier
+            .padding(horizontal = 30.dp)
+            .padding(bottom = 15.dp)) {
+        // Overlay a clickable layer on the TextField
+        Box {
+            // Create an Outlined Text Field with icon and not expanded
+            OutlinedTextField(
+                value = value,
+                onValueChange = {}, // Disable direct input editing
+                label = { Text(label) },
+                readOnly = true, // Ensure the field is not editable directly
+                isError = isErrorMsg,
+                trailingIcon = {
+                    Icon(
+                        icon,
+                        "Toggle Dropdown",
+                        Modifier.clickable { mExpanded = !mExpanded }
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        // This value is used to assign to the DropDown the same width
+                        mTextFieldSize = coordinates.size.toSize()
+                    }
+            )
+            // Make the entire Box clickable
+            Box(
+                Modifier
+                    .matchParentSize() // Covers the entire OutlinedTextField
+                    .clickable { mExpanded = !mExpanded }
+            )
+        }
+
+        // Create a drop-down menu
+        // when clicked, set the Text Field text as the item selected
+        DropdownMenu(
+            expanded = mExpanded,
+            onDismissRequest = { mExpanded = false },
+            modifier = Modifier
+                .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+        ) {
+            list.forEach { (name, id) ->
+                DropdownMenuItem(
+                    text = { Text(text = name) },
+                    onClick = {
+                        onValueChange(name, id)
+                        mExpanded = false
+                    })
+            }
+        }
+    }
+}
+
 
 @Composable
 fun DatePickerTextField(

@@ -42,13 +42,13 @@ fun NavManager(
 
         // ************ TRANSACTION
         composable("TransactionAddView") {
-            TransactionAddView(navController, modifier, transactionViewModel)
+            TransactionAddView(navController, modifier, transactionViewModel, accountViewModel)
         }
         composable("TransactionEditView/{id}", arguments = listOf(
             navArgument("id") { type = NavType.LongType }
         )) {
             val id = it.arguments?.getLong("id") ?: 0
-            TransactionEditView(navController, modifier, transactionViewModel, id)
+            TransactionEditView(navController, modifier, transactionViewModel, accountViewModel, id)
         }
     }
 }

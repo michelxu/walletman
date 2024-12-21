@@ -2,15 +2,11 @@ package com.xmichxl.walletmanapp.core.views
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -76,12 +72,13 @@ fun ContentHomeView(
 ) {
     val accountList by accountViewModel.accountList.collectAsState()
     val transactionList by transactionViewModel.transactionList.collectAsState()
+    val transactionListWithAccounts by transactionViewModel.transactionsWithAccounts.collectAsState()
 
     Column(modifier = Modifier.padding(it)) {
         AccountsCarousel(accountList, navController)
 
         BodyTitleSection(onClick = { /*TODO*/ }, title = "Transactions", onClickTitle = "View all")
 
-        LastTransactions(transactionList, navController)
+        LastTransactions(transactionListWithAccounts, navController)
     }
 }
