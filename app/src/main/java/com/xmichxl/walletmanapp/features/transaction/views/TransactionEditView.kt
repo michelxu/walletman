@@ -39,6 +39,7 @@ import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.data.Account
+import com.xmichxl.walletmanapp.features.account.utils.getDisplayName
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
@@ -139,10 +140,10 @@ fun ContentEditAddView(
     var descriptionState by remember { mutableStateOf("") }
     var amountState by remember { mutableStateOf("") }
     var dateState by remember { mutableStateOf("") }
-    var accountFromState by remember { mutableStateOf("") }
+    var accountFromState by remember { mutableStateOf("") } // Display the name of the related account
     var accountToState by remember { mutableStateOf("") }
 
-    var accountFromStateId by remember { mutableStateOf("") }
+    var accountFromStateId by remember { mutableStateOf("") } // Store the id of the related account
     var accountToStateId by remember { mutableStateOf("") }
 
 
@@ -152,8 +153,8 @@ fun ContentEditAddView(
         descriptionState = selectedTransaction?.description ?: ""
         amountState = selectedTransaction?.amount?.toString() ?: ""
         dateState = selectedTransaction?.date ?: ""
-        accountFromState = selectedAccountFrom?.name ?: ""
-        accountToState = selectedAccountTo?.name ?: ""
+        accountFromState = selectedAccountFrom?.getDisplayName() ?: ""
+        accountToState = selectedAccountTo?.getDisplayName() ?: ""
 
         accountFromStateId = selectedAccountFrom?.id.toString()
         accountToStateId = selectedAccountTo?.id.toString()

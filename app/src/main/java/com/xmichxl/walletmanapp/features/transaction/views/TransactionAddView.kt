@@ -35,6 +35,7 @@ import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DESCRIPTION
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentDateTime
 import com.xmichxl.walletmanapp.core.utils.validateInput
+import com.xmichxl.walletmanapp.features.account.utils.getDisplayName
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
@@ -135,7 +136,7 @@ fun ContentTransactionAddView(
                     accountFromId = id.toString()
                     if (type != TransactionType.TRANSFER.value) accountToName = ""
                 },
-                list = accountList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+                list = accountList.map { it.getDisplayName() to it.id }, // Convert Account to Pair<String, Int>
                 label = "Account From",
                 isErrorMsg = errorMessage == FORM_ERROR_ACCOUNT_FROM
             )
