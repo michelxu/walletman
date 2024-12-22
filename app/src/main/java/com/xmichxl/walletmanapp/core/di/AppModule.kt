@@ -59,6 +59,7 @@ class AppModule {
         return appDatabase.subcategoryDao()
     }
 
+    // Provide the Room Database
     @Singleton
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
@@ -77,11 +78,103 @@ class AppModule {
             if (categoryDao.getAllCategories().firstOrNull()?.isEmpty() == true) {
                 // Insert categories
                 val foodCategoryId = categoryDao.insert(Category(name = "Food"))
-                val transportCategoryId = categoryDao.insert(Category(name = "Transport"))
+                val shoppingCategoryId = categoryDao.insert(Category(name = "Shopping"))
+                val housingCategoryId = categoryDao.insert(Category(name = "Housing"))
+                val transportationCategoryId = categoryDao.insert(Category(name = "Transportation"))
+                val vehicleCategoryId = categoryDao.insert(Category(name = "Vehicle"))
+                val lifeCategoryId = categoryDao.insert(Category(name = "Life & Entertainment"))
+                val communicationCategoryId = categoryDao.insert(Category(name = "Communication"))
+                val financialCategoryId = categoryDao.insert(Category(name = "Financial expenses"))
+                val incomeCategoryId = categoryDao.insert(Category(name = "Income"))
+                val otherCategoryId = categoryDao.insert(Category(name = "Other"))
 
                 // Insert subcategories
+                // Food
                 subcategoryDao.insert(Subcategory(name = "Groceries", categoryId = foodCategoryId.toInt()))
-                subcategoryDao.insert(Subcategory(name = "Fuel", categoryId = transportCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Delivery", categoryId = foodCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Restaurant", categoryId = foodCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = foodCategoryId.toInt()))
+
+                // Shopping
+                subcategoryDao.insert(Subcategory(name = "Clothes & shoes", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Drug-store", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Electronics", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Gifts", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Health and care", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Home", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Jewels", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Kids", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Pets", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Tools", categoryId = shoppingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = shoppingCategoryId.toInt()))
+
+                // Housing
+                subcategoryDao.insert(Subcategory(name = "Energy", categoryId = housingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Water", categoryId = housingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Gas", categoryId = housingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Internet", categoryId = housingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Maintainance & repairs", categoryId = housingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Rent", categoryId = housingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Services", categoryId = housingCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = housingCategoryId.toInt()))
+
+                // Transportation
+                subcategoryDao.insert(Subcategory(name = "App Ride", categoryId = transportationCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Public transportation", categoryId = transportationCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Taxi", categoryId = transportationCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = transportationCategoryId.toInt()))
+
+                // Vehicle
+                subcategoryDao.insert(Subcategory(name = "Fuel", categoryId = vehicleCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Leasing", categoryId = vehicleCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Parking", categoryId = vehicleCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Vehicle insurance", categoryId = vehicleCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Vehicle maintainance", categoryId = vehicleCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = vehicleCategoryId.toInt()))
+
+                // Life & Entertainment
+                subcategoryDao.insert(Subcategory(name = "Sports & Fitness", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Books, audio & suscriptions", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Culture", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Education & development", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Health care", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Hobbies", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Holiday", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Gambling", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "TV & streaming", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Videogames", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Wellness", categoryId = lifeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = lifeCategoryId.toInt()))
+
+                // Communcation
+                subcategoryDao.insert(Subcategory(name = "Internet", categoryId = communicationCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Phone", categoryId = communicationCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Software", categoryId = communicationCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Apps", categoryId = communicationCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = communicationCategoryId.toInt()))
+
+                // Financial
+                subcategoryDao.insert(Subcategory(name = "Advisory", categoryId = financialCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Charges & fees", categoryId = financialCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Fines", categoryId = financialCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Insurances", categoryId = financialCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Loans & interests", categoryId = financialCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Taxes", categoryId = financialCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = financialCategoryId.toInt()))
+
+                // Income
+                subcategoryDao.insert(Subcategory(name = "Income", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Dues", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Gifts", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Renting", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Gambling", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Refunds", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Sale", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Wage", categoryId = incomeCategoryId.toInt()))
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = incomeCategoryId.toInt()))
+
+                // Other
+                subcategoryDao.insert(Subcategory(name = "Other", categoryId = otherCategoryId.toInt()))
             }
         }
 
