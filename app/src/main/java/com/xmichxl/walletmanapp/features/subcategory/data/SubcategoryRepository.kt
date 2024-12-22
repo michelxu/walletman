@@ -4,15 +4,15 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class SubcategoryRepository @Inject constructor(private val subcategoryDao: SubcategoryDao) {
-    suspend fun insertSubcategory(subcategory: Subcategory) {
+    suspend fun insert(subcategory: Subcategory) {
         subcategoryDao.insert(subcategory)
     }
 
-    suspend fun updateSubcategory(subcategory: Subcategory) {
+    suspend fun update(subcategory: Subcategory) {
         subcategoryDao.update(subcategory)
     }
 
-    suspend fun deleteSubcategory(subcategory: Subcategory) {
+    suspend fun delete(subcategory: Subcategory) {
         subcategoryDao.delete(subcategory)
     }
 

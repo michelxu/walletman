@@ -4,15 +4,15 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class CategoryRepository @Inject constructor(private val categoryDao: CategoryDao) {
-    suspend fun insertCategory(category: Category) {
+    suspend fun insert(category: Category) {
         categoryDao.insert(category)
     }
 
-    suspend fun updateCategory(category: Category) {
+    suspend fun update(category: Category) {
         categoryDao.update(category)
     }
 
-    suspend fun deleteCategory(category: Category) {
+    suspend fun delete(category: Category) {
         categoryDao.delete(category)
     }
 

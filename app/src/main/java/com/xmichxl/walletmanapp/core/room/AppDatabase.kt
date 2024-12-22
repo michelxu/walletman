@@ -1,6 +1,7 @@
 package com.xmichxl.walletmanapp.core.room
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -17,7 +18,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-// Config file
 @Database(entities = [Transaction::class, Account::class, Category::class, Subcategory::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
@@ -25,6 +25,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun subcategoryDao(): SubcategoryDao
 
+
+    // Insertar pre loaded data
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -35,35 +37,12 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "walletman_database"
-                )
-                    .addCallback(DatabaseCallback())
+                ).fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }
         }
-
-        // RoomDatabase.Callback for preloading data
-        private class DatabaseCallback : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-
-                // Preload data using Coroutine
-                CoroutineScope(Dispatchers.IO).launch {
-                    INSTANCE?.let { database ->
-                        val categoryDao = database.categoryDao()
-                        val subcategoryDao = database.subcategoryDao()
-
-                        // Insert categories
-                        val foodCategoryId = categoryDao.insert(Category(name = "Food"))
-                        val transportCategoryId = categoryDao.insert(Category(name = "Transport"))
-
-                        // Insert subcategories
-                        subcategoryDao.insert(Subcategory(name = "Groceries", categoryId = foodCategoryId.toInt()))
-                        subcategoryDao.insert(Subcategory(name = "Fuel", categoryId = transportCategoryId.toInt()))
-                    }
-                }
-            }
-        }
     }
-
 }
+
+

@@ -1,5 +1,6 @@
 package com.xmichxl.walletmanapp.features.transaction.views
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -85,6 +86,9 @@ fun ContentTransactionAddView(
     // Collect accounts from AccountViewModel
     val accountList by accountViewModel.accountList.collectAsState()
     val transactionTypes = AppConstants.transactionTypes
+
+    val categoryList by transactionViewModel.categoryList.collectAsState()
+    Log.d("categoryList", categoryList.toString())
 
     Column(modifier = Modifier.padding(it)) {
         // ********************* ACCOUNT TYPE

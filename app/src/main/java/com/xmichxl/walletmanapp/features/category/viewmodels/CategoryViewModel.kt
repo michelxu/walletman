@@ -11,24 +11,25 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CategoryViewModel @Inject constructor(
-    private val categoryRepository: CategoryRepository
-) : ViewModel() {
-
+class CategoryViewModel @Inject constructor(private val repository: CategoryRepository) : ViewModel() {
     // LiveData to observe categories
     private val _categories = MutableLiveData<List<Category>>()
     val categories: LiveData<List<Category>> get() = _categories
 
-    // Insert a category and fetch all categories
-    fun addCategoryAndFetch(name: String) {
-        viewModelScope.launch {
-            // Insert a new category
-            categoryRepository.insertCategory(Category(name = name))
+    init {
+        loadCategories()
+    }
 
-            // Fetch all categories and update LiveData
-            categoryRepository.getAllCategories().collect { categoryList ->
-                _categories.postValue(categoryList)
+    private fun loadCategories(){
+        viewModelScope.launch {
+            repository.getAllCategories().collect{ items ->
+                _categories.value = if (items.isNullOrEmpty()) emptyList() else items
             }
         }
     }
+
+    fun addCategory(category: Category) = viewModelScope.launch { repository.insert(category) }
+    fun updateCategory(category: Category) = viewModelScope.launch { repository.update(category) }
+    fun deleteCategory(category: Category) = viewModelScope.launch { repository.delete(category) }
+
 }
