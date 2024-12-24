@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.xmichxl.walletmanapp.features.category.data.Category
 import com.xmichxl.walletmanapp.features.category.data.CategoryRepository
 import com.xmichxl.walletmanapp.features.shared.data.AccountTransactionRepository
+import com.xmichxl.walletmanapp.features.subcategory.data.Subcategory
+import com.xmichxl.walletmanapp.features.subcategory.data.SubcategoryRepository
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionRepository
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithAccounts
@@ -19,7 +21,8 @@ import javax.inject.Inject
 class TransactionViewModel @Inject constructor(
     private val repository: TransactionRepository,
     private val sharedRepository: AccountTransactionRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val subcategoryRepository: SubcategoryRepository
 ): ViewModel() {
     // StateFlow to expose the list of transactions
     private val _transactionList = MutableStateFlow<List<Transaction>>(emptyList())
@@ -38,10 +41,26 @@ class TransactionViewModel @Inject constructor(
     private val _categoryList = MutableStateFlow<List<Category>>(emptyList())
     val categoryList = _categoryList.asStateFlow()
 
+    private val _subcategoryList = MutableStateFlow<List<Subcategory>>(emptyList())
+    val subcategoryList = _subcategoryList.asStateFlow()
+
+    private val _selectedCategoryId = MutableStateFlow<Int?>(null)
+    val selectedCategoryId = _selectedCategoryId.asStateFlow()
+
+    fun setSelectedCategoryId(id: Int) {
+        _selectedCategoryId.value = id
+    }
+
     init {
         //loadTransactions()
         loadTransactionsWithAccounts()
         loadCategories()
+
+        viewModelScope.launch {
+            selectedCategoryId.collect { id ->
+                id?.let { loadSubcategories(it) }
+            }
+        }
     }
 
     // Function to load transactions
@@ -64,6 +83,14 @@ class TransactionViewModel @Inject constructor(
         viewModelScope.launch {
             categoryRepository.getAllCategories().collect { items ->
                 _categoryList.value = if (items.isNullOrEmpty()) emptyList() else items
+            }
+        }
+    }
+
+    private fun loadSubcategories(id: Int) {
+        viewModelScope.launch {
+            subcategoryRepository.getSubcategoriesByCategoryId(id).collect { items ->
+                _subcategoryList.value = if (items.isNullOrEmpty()) emptyList() else items
             }
         }
     }

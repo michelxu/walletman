@@ -19,7 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.xmichxl.walletmanapp.core.components.AccountDropdownTextField
+import com.xmichxl.walletmanapp.core.components.NameIdDropdownTextField
 import com.xmichxl.walletmanapp.core.components.ButtonAtBottom
 import com.xmichxl.walletmanapp.core.components.DatePickerTextField
 import com.xmichxl.walletmanapp.core.components.DropdownTextField
@@ -32,12 +32,16 @@ import com.xmichxl.walletmanapp.core.utils.AppConstants
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_ACCOUNT_FROM
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_ACCOUNT_TO
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_AMOUNT
+import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CATEGORY
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DESCRIPTION
+import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_SUBCATEGORY
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentDateTime
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.utils.getDisplayName
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
+import com.xmichxl.walletmanapp.features.category.viewmodels.CategoryViewModel
+import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewModel
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
@@ -47,7 +51,8 @@ fun TransactionAddView(
     navController: NavController,
     modifier: Modifier,
     transactionViewModel: TransactionViewModel,
-    accountViewModel: AccountViewModel
+    accountViewModel: AccountViewModel,
+    categoryViewModel: CategoryViewModel,
 ) {
     Scaffold(topBar = {
         CenterAlignedTopAppBar(title = { MainTitle(title = "New Transaction") },
@@ -60,7 +65,7 @@ fun TransactionAddView(
                 }
             })
     }) {
-        ContentTransactionAddView(it, navController, transactionViewModel, accountViewModel)
+        ContentTransactionAddView(it, navController, transactionViewModel, accountViewModel, categoryViewModel)
     }
 }
 
@@ -70,7 +75,8 @@ fun ContentTransactionAddView(
     it: PaddingValues,
     navController: NavController,
     transactionViewModel: TransactionViewModel,
-    accountViewModel: AccountViewModel
+    accountViewModel: AccountViewModel,
+    categoryViewModel: CategoryViewModel,
 ) {
     var type by remember { mutableStateOf("Expense") }
     var description by remember { mutableStateOf("") }
@@ -80,21 +86,35 @@ fun ContentTransactionAddView(
     var accountFromId by remember { mutableStateOf("") } // Store id to save in the database
     var accountToName by remember { mutableStateOf("") }
     var accountToId by remember { mutableStateOf("") }
+    var categoryName by remember { mutableStateOf("") }
+    var categoryId by remember { mutableStateOf("") }
+    var subcategoryName by remember { mutableStateOf("") }
+    var subcategoryId by remember { mutableStateOf("") }
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Collect accounts from AccountViewModel
     val accountList by accountViewModel.accountList.collectAsState()
+    val categoryList by transactionViewModel.categoryList.collectAsState()
+    val subcategoryList by transactionViewModel.subcategoryList.collectAsState()
     val transactionTypes = AppConstants.transactionTypes
 
-    val categoryList by transactionViewModel.categoryList.collectAsState()
     Log.d("categoryList", categoryList.toString())
+    Log.d("subcategoryList", subcategoryList.toString())
 
     Column(modifier = Modifier.padding(it)) {
         // ********************* ACCOUNT TYPE
         DropdownTextField(
             value = type,
-            onValueChange = { type = it },
+            onValueChange = {
+                type = it
+                if (type == TransactionType.TRANSFER.value) {
+                    categoryName = ""
+                    categoryId = ""
+                    subcategoryName = ""
+                    subcategoryId = ""
+                }
+            },
             list = transactionTypes,
             label = "Transaction Type"
         )
@@ -121,6 +141,33 @@ fun ContentTransactionAddView(
         )
         if (errorMessage == FORM_ERROR_AMOUNT) WarningFormText(title = FORM_ERROR_AMOUNT)
 
+        // ********************* CATEGORY
+        NameIdDropdownTextField(
+            value = categoryName,
+            onValueChange = { name, id ->
+                categoryName = name
+                categoryId = id.toString()
+                transactionViewModel.setSelectedCategoryId(id!!)
+            },
+            list = categoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+            label = "Category",
+            isErrorMsg = errorMessage == FORM_ERROR_CATEGORY
+        )
+        if (errorMessage == FORM_ERROR_CATEGORY) WarningFormText(title = FORM_ERROR_CATEGORY)
+
+        // ********************* SUBCATEGORY
+        NameIdDropdownTextField(
+            value = subcategoryName,
+            onValueChange = { name, id ->
+                subcategoryName = name
+                subcategoryId = id.toString()
+            },
+            list = subcategoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+            label = "Subcategory",
+            isErrorMsg = errorMessage == FORM_ERROR_SUBCATEGORY
+        )
+        if (errorMessage == FORM_ERROR_SUBCATEGORY) WarningFormText(title = FORM_ERROR_SUBCATEGORY)
+
         // ********************* DATE
         DatePickerTextField(
             label = "Date",
@@ -133,7 +180,7 @@ fun ContentTransactionAddView(
         // ********************* ACCOUNT FROM
         if (type == TransactionType.EXPENSE.value || type == TransactionType.TRANSFER.value)
         {
-            AccountDropdownTextField(
+            NameIdDropdownTextField(
                 value = accountFromName,
                 onValueChange = { name, id ->
                     accountFromName = name
@@ -150,14 +197,14 @@ fun ContentTransactionAddView(
         // ********************* ACCOUNT TO
         if (type == TransactionType.INCOME.value || type == TransactionType.TRANSFER.value)
         {
-            AccountDropdownTextField(
+            NameIdDropdownTextField(
                 value = accountToName,
                 onValueChange = { name, id ->
                     accountToName = name
                     accountToId = id.toString()
                     if (type != TransactionType.TRANSFER.value) accountFromName = ""
                 },
-                list = accountList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+                list = accountList.map { it.getDisplayName() to it.id }, // Convert Account to Pair<String, Int>
                 label = "Account To",
                 isErrorMsg = errorMessage == FORM_ERROR_ACCOUNT_TO
             )
@@ -177,6 +224,12 @@ fun ContentTransactionAddView(
                     type == TransactionType.INCOME.value && accountToName.isBlank() || type == TransactionType.TRANSFER.value && accountToName.isBlank() -> {
                         errorMessage = FORM_ERROR_ACCOUNT_TO
                     }
+                    type == TransactionType.EXPENSE.value && categoryName.isBlank() || type == TransactionType.INCOME.value && categoryName.isBlank() -> {
+                        errorMessage = FORM_ERROR_CATEGORY
+                    }
+                    type == TransactionType.EXPENSE.value && subcategoryName.isBlank() || type == TransactionType.INCOME.value && subcategoryName.isBlank() -> {
+                        errorMessage = FORM_ERROR_SUBCATEGORY
+                    }
                     description.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION
                     amount.isBlank() -> errorMessage = FORM_ERROR_AMOUNT
                     else -> {
@@ -186,7 +239,8 @@ fun ContentTransactionAddView(
                             amount = amount.toDouble(),
                             date = date,
                             accountToId = if(accountToName.isNotBlank()) accountToId.toInt() else null,
-                            accountFromId = if (accountFromName.isNotBlank()) accountFromId.toInt() else null
+                            accountFromId = if (accountFromName.isNotBlank()) accountFromId.toInt() else null,
+                            subcategoryId = if(subcategoryName.isNotBlank()) subcategoryId.toInt() else null
                         )
 
                         transactionViewModel.createTransactionAndUpdateBalance(newTransaction)

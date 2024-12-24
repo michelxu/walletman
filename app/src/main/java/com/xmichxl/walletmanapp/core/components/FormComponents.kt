@@ -203,7 +203,7 @@ fun DropdownTextField(
 }
 
 @Composable
-fun AccountDropdownTextField(
+fun NameIdDropdownTextField(
     value: String,
     onValueChange: (String, Int?) -> Unit, // Add a way to return the ID
     list: List<Pair<String, Int>>, // List of names and their IDs
