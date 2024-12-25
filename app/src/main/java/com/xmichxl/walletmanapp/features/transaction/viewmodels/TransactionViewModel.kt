@@ -11,6 +11,7 @@ import com.xmichxl.walletmanapp.features.subcategory.data.SubcategoryRepository
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionRepository
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithAccounts
+import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,6 +32,10 @@ class TransactionViewModel @Inject constructor(
     private val _transactionsWithAccounts = MutableStateFlow<List<TransactionWithAccounts>>(emptyList())
     val transactionsWithAccounts = _transactionsWithAccounts.asStateFlow()
 
+    private val _transactionsWithDetails = MutableStateFlow<List<TransactionWithDetails>>(emptyList())
+    val transactionsWithDetails = _transactionsWithDetails.asStateFlow()
+
+
     // StateFlow for the selected transaction (for editing)
     private val _selectedTransaction = MutableStateFlow<Transaction?>(null)
     val selectedTransaction = _selectedTransaction.asStateFlow()
@@ -47,20 +52,12 @@ class TransactionViewModel @Inject constructor(
     private val _selectedCategoryId = MutableStateFlow<Int?>(null)
     val selectedCategoryId = _selectedCategoryId.asStateFlow()
 
-    fun setSelectedCategoryId(id: Int) {
-        _selectedCategoryId.value = id
-    }
-
     init {
         //loadTransactions()
         loadTransactionsWithAccounts()
+        loadTransactionsWithDetails()
         loadCategories()
-
-        viewModelScope.launch {
-            selectedCategoryId.collect { id ->
-                id?.let { loadSubcategories(it) }
-            }
-        }
+        observeCategorySelection()
     }
 
     // Function to load transactions
@@ -71,6 +68,15 @@ class TransactionViewModel @Inject constructor(
             }
         }
     }
+
+    private fun loadTransactionsWithDetails() {
+        viewModelScope.launch {
+            repository.getAllTransactionsWithDetails().collect { items ->
+                _transactionsWithDetails.value = items
+            }
+        }
+    }
+
     private fun loadTransactions() {
         viewModelScope.launch {
             repository.getAllTransactions().collect { items ->
@@ -91,6 +97,19 @@ class TransactionViewModel @Inject constructor(
         viewModelScope.launch {
             subcategoryRepository.getSubcategoriesByCategoryId(id).collect { items ->
                 _subcategoryList.value = if (items.isNullOrEmpty()) emptyList() else items
+            }
+        }
+    }
+
+    fun setSelectedCategoryId(id: Int) {
+        _selectedCategoryId.value = id
+    }
+
+    //Listener of selectedCategoryId that will trigger when the View calls setSelectedCategoryId(id)
+    private fun observeCategorySelection() {
+        viewModelScope.launch {
+            selectedCategoryId.collect { id ->
+                id?.let { loadSubcategories(it) }
             }
         }
     }

@@ -44,6 +44,7 @@ import com.xmichxl.walletmanapp.core.utils.formatMoney
 import com.xmichxl.walletmanapp.core.utils.getColorsFromString
 import com.xmichxl.walletmanapp.features.account.data.Account
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithAccounts
+import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithDetails
 import com.xmichxl.walletmanapp.features.transaction.utils.getAccountName
 
 @Composable
@@ -165,7 +166,7 @@ fun AccountCard(
 }
 
 @Composable
-fun LastTransactions(transactions: List<TransactionWithAccounts>, navController: NavController) {
+fun LastTransactions(transactions: List<TransactionWithDetails>, navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -181,7 +182,7 @@ fun LastTransactions(transactions: List<TransactionWithAccounts>, navController:
 }
 
 @Composable
-fun TransactionItem(transaction: TransactionWithAccounts, onClick: () -> Unit) {
+fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -222,6 +223,11 @@ fun TransactionItem(transaction: TransactionWithAccounts, onClick: () -> Unit) {
             )
             Text(
                 text = transaction.getAccountName(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = transaction.category?.name ?: "-",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

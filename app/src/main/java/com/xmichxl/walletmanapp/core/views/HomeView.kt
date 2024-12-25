@@ -1,5 +1,6 @@
 package com.xmichxl.walletmanapp.core.views
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -73,12 +74,15 @@ fun ContentHomeView(
     val accountList by accountViewModel.accountList.collectAsState()
     val transactionList by transactionViewModel.transactionList.collectAsState()
     val transactionListWithAccounts by transactionViewModel.transactionsWithAccounts.collectAsState()
+    val transactionListWithDetails by transactionViewModel.transactionsWithDetails.collectAsState()
+
+    Log.d("trans details", transactionListWithDetails.toString())
 
     Column(modifier = Modifier.padding(it)) {
         AccountsCarousel(accountList, navController)
 
         BodyTitleSection(onClick = { /*TODO*/ }, title = "Transactions", onClickTitle = "View all")
 
-        LastTransactions(transactionListWithAccounts, navController)
+        LastTransactions(transactionListWithDetails, navController)
     }
 }

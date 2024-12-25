@@ -240,6 +240,7 @@ fun ContentTransactionAddView(
                             date = date,
                             accountToId = if(accountToName.isNotBlank()) accountToId.toInt() else null,
                             accountFromId = if (accountFromName.isNotBlank()) accountFromId.toInt() else null,
+                            categoryId = if(categoryName.isNotBlank()) categoryId.toInt() else null,
                             subcategoryId = if(subcategoryName.isNotBlank()) subcategoryId.toInt() else null
                         )
 

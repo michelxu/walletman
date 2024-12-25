@@ -25,7 +25,7 @@ interface TransactionDao {
     @Delete
     suspend fun delete(transaction: Transaction)
 
-    // Transaction with Account
+    // **************** Transaction with Account
     @androidx.room.Transaction
     @Query("SELECT * FROM transactions WHERE id = :id")
     fun getTransactionWithAccountsById(id: Long): Flow<TransactionWithAccounts>
@@ -33,4 +33,13 @@ interface TransactionDao {
     @androidx.room.Transaction
     @Query("SELECT * FROM transactions")
     fun getAllTransactionsWithAccounts(): Flow<List<TransactionWithAccounts>>
+
+    // **************** Transaction With Details
+    @androidx.room.Transaction
+    @Query("SELECT * FROM transactions WHERE id = :id")
+    fun getTransactionWithDetailsById(id: Long): Flow<TransactionWithDetails>
+
+    @androidx.room.Transaction
+    @Query("SELECT * FROM transactions")
+    fun getAllTransactionsWithDetails(): Flow<List<TransactionWithDetails>>
 }
