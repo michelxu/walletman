@@ -6,6 +6,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
 import com.xmichxl.walletmanapp.features.account.data.Account
+import com.xmichxl.walletmanapp.features.category.data.Category
+import com.xmichxl.walletmanapp.features.subcategory.data.Subcategory
 
 @Entity(
     tableName = "transactions",
@@ -21,9 +23,21 @@ import com.xmichxl.walletmanapp.features.account.data.Account
             parentColumns = ["id"],
             childColumns = ["accountToId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Category::class,
+            parentColumns = ["id"],
+            childColumns = ["categoryId"],
+            onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
+            entity = Subcategory::class,
+            parentColumns = ["id"],
+            childColumns = ["subcategoryId"],
+            onDelete = ForeignKey.SET_NULL
         )
     ],
-    indices = [Index("accountFromId"), Index("accountToId")]
+    indices = [Index("accountFromId"), Index("accountToId"), Index("categoryId"), Index("subcategoryId")]
 )
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
