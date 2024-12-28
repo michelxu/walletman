@@ -77,16 +77,16 @@ class AppModule {
 
             if (categoryDao.getAllCategories().firstOrNull()?.isEmpty() == true) {
                 // Insert categories
-                val foodCategoryId = categoryDao.insert(Category(name = "Food", icon = "food", color = "yellow"))
-                val shoppingCategoryId = categoryDao.insert(Category(name = "Shopping", icon = "shopping", color = "yellow"))
-                val housingCategoryId = categoryDao.insert(Category(name = "Housing", icon = "house", color = "yellow"))
-                val transportationCategoryId = categoryDao.insert(Category(name = "Transportation", icon = "transport", color = "yellow"))
-                val vehicleCategoryId = categoryDao.insert(Category(name = "Vehicle", icon = "vehicle", color = "yellow"))
-                val lifeCategoryId = categoryDao.insert(Category(name = "Life & Entertainment", icon = "entertainment", color = "yellow"))
-                val communicationCategoryId = categoryDao.insert(Category(name = "Communication", icon = "communication", color = "yellow"))
-                val financialCategoryId = categoryDao.insert(Category(name = "Financial expenses", icon = "bank", color = "yellow"))
-                val incomeCategoryId = categoryDao.insert(Category(name = "Income", icon = "income", color = "green"))
-                val otherCategoryId = categoryDao.insert(Category(name = "Other", icon = "other", color = "gray"))
+                val foodCategoryId = categoryDao.insert(Category(name = "Food", icon = "food", color = "Orange"))
+                val shoppingCategoryId = categoryDao.insert(Category(name = "Shopping", icon = "shopping", color = "Magenta"))
+                val housingCategoryId = categoryDao.insert(Category(name = "Housing", icon = "house", color = "Green"))
+                val transportationCategoryId = categoryDao.insert(Category(name = "Transportation", icon = "transport", color = "Blue"))
+                val vehicleCategoryId = categoryDao.insert(Category(name = "Vehicle", icon = "vehicle", color = "Silver"))
+                val lifeCategoryId = categoryDao.insert(Category(name = "Life & Entertainment", icon = "entertainment", color = "Yellow"))
+                val communicationCategoryId = categoryDao.insert(Category(name = "Communication", icon = "communication", color = "Teal"))
+                val financialCategoryId = categoryDao.insert(Category(name = "Financial expenses", icon = "bank", color = "NavyBlue"))
+                val incomeCategoryId = categoryDao.insert(Category(name = "Income", icon = "income", color = "Gold"))
+                val otherCategoryId = categoryDao.insert(Category(name = "Other", icon = "other", color = "Gray"))
 
                 // Insert subcategories
                 // Food

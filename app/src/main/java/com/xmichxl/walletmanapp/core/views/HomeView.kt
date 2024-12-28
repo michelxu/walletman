@@ -1,6 +1,5 @@
 package com.xmichxl.walletmanapp.core.views
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -55,7 +54,7 @@ fun HomeView(
         },
         floatingActionButton = {
             FloatButton {
-                navController.navigate("AccountAddView")
+                navController.navigate("TransactionAddView")
             }
         }
     ) {
@@ -72,17 +71,14 @@ fun ContentHomeView(
     transactionViewModel: TransactionViewModel
 ) {
     val accountList by accountViewModel.accountList.collectAsState()
-    val transactionList by transactionViewModel.transactionList.collectAsState()
-    val transactionListWithAccounts by transactionViewModel.transactionsWithAccounts.collectAsState()
     val transactionListWithDetails by transactionViewModel.transactionsWithDetails.collectAsState()
-
-    Log.d("trans details", transactionListWithDetails.toString())
+    val transactionListByRange by transactionViewModel.transactionsByRange.collectAsState()
 
     Column(modifier = Modifier.padding(it)) {
         AccountsCarousel(accountList, navController)
 
-        BodyTitleSection(onClick = { /*TODO*/ }, title = "Transactions", onClickTitle = "View all")
+        BodyTitleSection(onClick = { /*TODO*/ }, title = "Last Week", onClickTitle = "View all")
 
-        LastTransactions(transactionListWithDetails, navController)
+        LastTransactions(transactionListByRange, navController)
     }
 }

@@ -2,8 +2,7 @@ package com.xmichxl.walletmanapp.features.shared.data
 
 import android.util.Log
 import com.xmichxl.walletmanapp.core.utils.TransactionType
-import com.xmichxl.walletmanapp.core.utils.getCurrentDateTime
-import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
+import com.xmichxl.walletmanapp.core.utils.getCurrentDateTimeIso
 import com.xmichxl.walletmanapp.features.account.data.Account
 import com.xmichxl.walletmanapp.features.account.data.AccountDao
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
@@ -28,7 +27,7 @@ class AccountTransactionRepository(
                     type = TransactionType.ADJUSTMENT.value,
                     accountToId = accountId.toInt(), // Link accountToId
                     accountFromId = null,
-                    date = getCurrentDateTime()
+                    date = getCurrentDateTimeIso()
                 )
                 transactionDao.insert(initialTransaction)
             }

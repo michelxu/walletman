@@ -30,18 +30,24 @@ import com.xmichxl.walletmanapp.core.components.DatePickerTextField
 import com.xmichxl.walletmanapp.core.components.MainIconButton
 import com.xmichxl.walletmanapp.core.components.MainTextField
 import com.xmichxl.walletmanapp.core.components.MainTitle
+import com.xmichxl.walletmanapp.core.components.NameIdDropdownTextField
 import com.xmichxl.walletmanapp.core.components.NumericTextField
 import com.xmichxl.walletmanapp.core.components.WarningFormText
 import com.xmichxl.walletmanapp.core.utils.AppIcons
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_AMOUNT
+import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CATEGORY
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DESCRIPTION
+import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_SUBCATEGORY
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.data.Account
 import com.xmichxl.walletmanapp.features.account.utils.getDisplayName
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
+import com.xmichxl.walletmanapp.features.category.data.Category
+import com.xmichxl.walletmanapp.features.subcategory.data.Subcategory
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
+import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithDetails
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,24 +61,31 @@ fun TransactionEditView(
 ) {
     // Observe the selected account
     val selectedTransaction by transactionViewModel.selectedTransaction.collectAsState()
+    val selectedTransactionWithDetails by transactionViewModel.selectedTransactionWithDetails.collectAsState()
     val selectedAccountFrom by accountViewModel.selectedAccountFrom.collectAsState()
     val selectedAccountTo by accountViewModel.selectedAccountTo.collectAsState()
+    val categoryList by transactionViewModel.categoryList.collectAsState()
+    val subcategoryList by transactionViewModel.subcategoryList.collectAsState()
 
     // Trigger account loading when the screen is opened
     LaunchedEffect(Unit) {
+        transactionViewModel.loadCategoriesIfNeeded()
+        transactionViewModel.observeCategorySelectionIfNeeded()
+
         transactionViewModel.getTransactionById(id)
+        transactionViewModel.getTransactionWithDetailsById(id)
     }
 
     // Trigger loading of the associated accounts
-    LaunchedEffect(selectedTransaction) {
-        selectedTransaction?.accountFromId?.let { accountViewModel.getAccountFromById(it) }
-        selectedTransaction?.accountToId?.let { accountViewModel.getAccountToById(it) }
+    LaunchedEffect(selectedTransactionWithDetails) {
+        selectedTransactionWithDetails?.details?.accountFromId?.let { accountViewModel.getAccountFromById(it) }
+        selectedTransactionWithDetails?.details?.accountToId?.let { accountViewModel.getAccountToById(it) }
     }
 
     // Determine if the data is loading
-    val isLoading = selectedTransaction == null ||
-            (selectedTransaction?.accountFromId != null && selectedAccountFrom == null) ||
-            (selectedTransaction?.accountToId != null && selectedAccountTo == null)
+    val isLoading = selectedTransactionWithDetails == null ||
+            (selectedTransactionWithDetails?.details?.accountFromId != null && selectedAccountFrom == null) ||
+            (selectedTransactionWithDetails?.details?.accountToId != null && selectedAccountTo == null)
 
     Scaffold(
         topBar = {
@@ -116,9 +129,11 @@ fun TransactionEditView(
                 navController = navController,
                 transactionViewModel = transactionViewModel,
                 id = id,
-                selectedTransaction = selectedTransaction,
+                selectedTransactionWithDetails = selectedTransactionWithDetails,
                 selectedAccountFrom = selectedAccountFrom,
-                selectedAccountTo = selectedAccountTo
+                selectedAccountTo = selectedAccountTo,
+                categoryList = categoryList,
+                subcategoryList = subcategoryList
             )
         }
     }
@@ -131,9 +146,11 @@ fun ContentEditAddView(
     navController: NavController,
     transactionViewModel: TransactionViewModel,
     id: Long,
-    selectedTransaction: Transaction?,
+    selectedTransactionWithDetails: TransactionWithDetails?,
     selectedAccountFrom: Account?,
     selectedAccountTo: Account?,
+    categoryList: List<Category>,
+    subcategoryList: List<Subcategory>
 ) {
     // Use derived state for fields
     var typeState by remember { mutableStateOf("") }
@@ -142,22 +159,33 @@ fun ContentEditAddView(
     var dateState by remember { mutableStateOf("") }
     var accountFromState by remember { mutableStateOf("") } // Display the name of the related account
     var accountToState by remember { mutableStateOf("") }
-
     var accountFromStateId by remember { mutableStateOf("") } // Store the id of the related account
     var accountToStateId by remember { mutableStateOf("") }
-
+    var categoryName by remember { mutableStateOf("") }
+    var categoryId by remember { mutableStateOf("") }
+    var subcategoryName by remember { mutableStateOf("") }
+    var subcategoryId by remember { mutableStateOf("") }
 
     // Update state reactively when dependencies change
-    LaunchedEffect(selectedTransaction, selectedAccountFrom, selectedAccountTo) {
-        typeState = selectedTransaction?.type ?: ""
-        descriptionState = selectedTransaction?.description ?: ""
-        amountState = selectedTransaction?.amount?.toString() ?: ""
-        dateState = selectedTransaction?.date ?: ""
+    LaunchedEffect(selectedTransactionWithDetails, selectedAccountFrom, selectedAccountTo) {
+        typeState = selectedTransactionWithDetails?.details?.type ?: ""
+        descriptionState = selectedTransactionWithDetails?.details?.description ?: ""
+        amountState = selectedTransactionWithDetails?.details?.amount?.toString() ?: ""
+        dateState = selectedTransactionWithDetails?.details?.date ?: ""
         accountFromState = selectedAccountFrom?.getDisplayName() ?: ""
         accountToState = selectedAccountTo?.getDisplayName() ?: ""
-
         accountFromStateId = selectedAccountFrom?.id.toString()
         accountToStateId = selectedAccountTo?.id.toString()
+        categoryName = selectedTransactionWithDetails?.category?.name.toString()
+        categoryId = selectedTransactionWithDetails?.category?.id.toString()
+        subcategoryName = selectedTransactionWithDetails?.subcategory?.name.toString()
+        subcategoryId = selectedTransactionWithDetails?.subcategory?.id.toString()
+
+        selectedTransactionWithDetails?.category?.id?.let {
+            transactionViewModel.setSelectedCategoryId(
+                it
+            )
+        }
     }
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -192,6 +220,42 @@ fun ContentEditAddView(
             isErrorMsg = errorMessage == FORM_ERROR_AMOUNT
         )
         if (errorMessage == FORM_ERROR_AMOUNT) WarningFormText(title = FORM_ERROR_AMOUNT)
+
+        // ********************* CATEGORY
+        if (typeState == TransactionType.EXPENSE.value || typeState == TransactionType.INCOME.value)
+        {
+            NameIdDropdownTextField(
+                value = categoryName,
+                onValueChange = { name, id ->
+                    categoryName = name
+                    categoryId = id.toString()
+                    subcategoryName = ""
+                    subcategoryId = ""
+                    transactionViewModel.setSelectedCategoryId(id!!)
+                },
+                list = categoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+                label = "Category",
+                isErrorMsg = errorMessage == FORM_ERROR_CATEGORY
+            )
+            if (errorMessage == FORM_ERROR_CATEGORY) WarningFormText(title = FORM_ERROR_CATEGORY)
+        }
+
+
+        // ********************* SUBCATEGORY
+        if (typeState == TransactionType.EXPENSE.value || typeState == TransactionType.INCOME.value)
+        {
+            NameIdDropdownTextField(
+                value = subcategoryName,
+                onValueChange = { name, id ->
+                    subcategoryName = name
+                    subcategoryId = id.toString()
+                },
+                list = subcategoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+                label = "Subcategory",
+                isErrorMsg = errorMessage == FORM_ERROR_SUBCATEGORY
+            )
+            if (errorMessage == FORM_ERROR_SUBCATEGORY) WarningFormText(title = FORM_ERROR_SUBCATEGORY)
+        }
 
         // ********************* DATE
         DatePickerTextField(
@@ -230,6 +294,12 @@ fun ContentEditAddView(
                     // VALIDATE FIELDS
                     descriptionState.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION
                     amountState.isBlank() -> errorMessage = FORM_ERROR_AMOUNT
+                    typeState == TransactionType.EXPENSE.value && categoryName.isBlank() || typeState == TransactionType.INCOME.value && categoryName.isBlank() -> {
+                        errorMessage = FORM_ERROR_CATEGORY
+                    }
+                    typeState == TransactionType.EXPENSE.value && subcategoryName.isBlank() || typeState == TransactionType.INCOME.value && subcategoryName.isBlank() -> {
+                        errorMessage = FORM_ERROR_SUBCATEGORY
+                    }
                     else -> {
                         val newTransaction = Transaction(
                             id = id,
@@ -239,6 +309,8 @@ fun ContentEditAddView(
                             date = dateState,
                             accountToId = if (accountToState.isNotBlank()) accountToStateId.toInt() else null,
                             accountFromId = if (accountFromState.isNotBlank()) accountFromStateId.toInt() else null,
+                            categoryId = if(categoryName.isNotBlank()) categoryId.toInt() else null,
+                            subcategoryId = if(subcategoryName.isNotBlank()) subcategoryId.toInt() else null,
                             lastUpdated = getCurrentTimestamp()
                         )
 

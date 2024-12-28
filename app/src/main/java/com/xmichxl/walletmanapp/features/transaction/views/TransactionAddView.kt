@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,12 +37,11 @@ import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CATEGORY
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DESCRIPTION
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_SUBCATEGORY
 import com.xmichxl.walletmanapp.core.utils.TransactionType
-import com.xmichxl.walletmanapp.core.utils.getCurrentDateTime
+import com.xmichxl.walletmanapp.core.utils.getCurrentDateTimeIso
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.utils.getDisplayName
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.category.viewmodels.CategoryViewModel
-import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewModel
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
@@ -54,6 +54,12 @@ fun TransactionAddView(
     accountViewModel: AccountViewModel,
     categoryViewModel: CategoryViewModel,
 ) {
+    LaunchedEffect(Unit) {
+        transactionViewModel.loadCategoriesIfNeeded()
+        transactionViewModel.observeCategorySelectionIfNeeded()
+        transactionViewModel.resetCategoryAndSubcategories()
+    }
+
     Scaffold(topBar = {
         CenterAlignedTopAppBar(title = { MainTitle(title = "New Transaction") },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -81,7 +87,7 @@ fun ContentTransactionAddView(
     var type by remember { mutableStateOf("Expense") }
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf(getCurrentDateTime()) }
+    var date by remember { mutableStateOf(getCurrentDateTimeIso()) }
     var accountFromName by remember { mutableStateOf("") } //Store name to show in the DropDownTextBox
     var accountFromId by remember { mutableStateOf("") } // Store id to save in the database
     var accountToName by remember { mutableStateOf("") }
@@ -142,31 +148,39 @@ fun ContentTransactionAddView(
         if (errorMessage == FORM_ERROR_AMOUNT) WarningFormText(title = FORM_ERROR_AMOUNT)
 
         // ********************* CATEGORY
-        NameIdDropdownTextField(
-            value = categoryName,
-            onValueChange = { name, id ->
-                categoryName = name
-                categoryId = id.toString()
-                transactionViewModel.setSelectedCategoryId(id!!)
-            },
-            list = categoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
-            label = "Category",
-            isErrorMsg = errorMessage == FORM_ERROR_CATEGORY
-        )
-        if (errorMessage == FORM_ERROR_CATEGORY) WarningFormText(title = FORM_ERROR_CATEGORY)
+        if (type == TransactionType.EXPENSE.value || type == TransactionType.INCOME.value)
+        {
+            NameIdDropdownTextField(
+                value = categoryName,
+                onValueChange = { name, id ->
+                    categoryName = name
+                    categoryId = id.toString()
+                    subcategoryName = ""
+                    subcategoryId = ""
+                    transactionViewModel.setSelectedCategoryId(id!!)
+                },
+                list = categoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+                label = "Category",
+                isErrorMsg = errorMessage == FORM_ERROR_CATEGORY
+            )
+            if (errorMessage == FORM_ERROR_CATEGORY) WarningFormText(title = FORM_ERROR_CATEGORY)
+        }
 
         // ********************* SUBCATEGORY
-        NameIdDropdownTextField(
-            value = subcategoryName,
-            onValueChange = { name, id ->
-                subcategoryName = name
-                subcategoryId = id.toString()
-            },
-            list = subcategoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
-            label = "Subcategory",
-            isErrorMsg = errorMessage == FORM_ERROR_SUBCATEGORY
-        )
-        if (errorMessage == FORM_ERROR_SUBCATEGORY) WarningFormText(title = FORM_ERROR_SUBCATEGORY)
+        if (type == TransactionType.EXPENSE.value || type == TransactionType.INCOME.value)
+        {
+            NameIdDropdownTextField(
+                value = subcategoryName,
+                onValueChange = { name, id ->
+                    subcategoryName = name
+                    subcategoryId = id.toString()
+                },
+                list = subcategoryList.map { it.name to it.id }, // Convert Account to Pair<String, Int>
+                label = "Subcategory",
+                isErrorMsg = errorMessage == FORM_ERROR_SUBCATEGORY
+            )
+            if (errorMessage == FORM_ERROR_SUBCATEGORY) WarningFormText(title = FORM_ERROR_SUBCATEGORY)
+        }
 
         // ********************* DATE
         DatePickerTextField(
