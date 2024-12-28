@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,10 +43,11 @@ import com.xmichxl.walletmanapp.core.utils.AppIcons
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.formatMoney
 import com.xmichxl.walletmanapp.core.utils.getColorsFromString
+import com.xmichxl.walletmanapp.core.utils.getIconFromString
 import com.xmichxl.walletmanapp.features.account.data.Account
-import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithAccounts
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithDetails
 import com.xmichxl.walletmanapp.features.transaction.utils.getAccountName
+import com.xmichxl.walletmanapp.ui.theme.CColorGreen
 
 @Composable
 fun MainTitle(title: String) {
@@ -100,6 +102,9 @@ fun AccountsCarousel(accounts: List<Account>, navController: NavController) {
                 accountType = account.type,
                 gradientColors = listOf(primaryColor, secondaryColor) // Example gradient
             )
+        }
+        item {
+            NewAccountCard(onClick = { navController.navigate("AccountAddView") })
         }
     }
 }
@@ -166,6 +171,56 @@ fun AccountCard(
 }
 
 @Composable
+fun NewAccountCard(onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .size(width = 300.dp, height = 180.dp)
+            .padding(8.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Icon inside a circle
+                Box(
+                    modifier = Modifier
+                        .size(64.dp) // Size of the circle
+                        .background(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Main.Add,
+                        contentDescription = "Add Account",
+                        modifier = Modifier.size(32.dp), // Size of the icon
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "New Account",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
 fun LastTransactions(transactions: List<TransactionWithDetails>, navController: NavController) {
     LazyColumn(
         modifier = Modifier
@@ -175,7 +230,8 @@ fun LastTransactions(transactions: List<TransactionWithDetails>, navController: 
         items(transactions) { transaction ->
             TransactionItem(
                 transaction = transaction,
-                onClick = { navController.navigate("TransactionEditView/${transaction.details.id}") })
+                onClick = { navController.navigate("TransactionEditView/${transaction.details.id}") }
+            )
             //Spacer(modifier = Modifier.height(2.dp)) // Add spacing between items
         }
     }
@@ -191,6 +247,9 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val (primaryColor, secondaryColor) = getColorsFromString(transaction.category?.color ?: "Black")
+        val icon = getIconFromString(transaction.category?.icon ?: "")
+
         // Rounded Shape with Icon (on the left)
         Box(
             modifier = Modifier
@@ -200,12 +259,7 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = when(transaction.details.type) {
-                    TransactionType.EXPENSE.value -> painterResource(AppIcons.Transaction.Expense)
-                    TransactionType.INCOME.value -> painterResource(AppIcons.Transaction.Income)
-                    TransactionType.TRANSFER.value -> painterResource(AppIcons.Transaction.Transfer)
-                    else -> painterResource(AppIcons.Transaction.Adjustment)
-                }, // Replace with relevant icon
+                painter = painterResource(icon),
                 contentDescription = "Transaction Icon",
                 modifier = Modifier.size(24.dp), // Icon size
                 tint = Color.White // Icon color
@@ -219,18 +273,22 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
             Text(
                 text = transaction.details.description ?: "No name",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (transaction.details.type == TransactionType.INCOME.value)
+                    CColorGreen else MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = transaction.getAccountName(),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (transaction.details.type == TransactionType.INCOME.value)
+                    CColorGreen else MaterialTheme.colorScheme.onSurfaceVariant
             )
+            /*
             Text(
                 text = transaction.category?.name ?: "-",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+             */
         }
 
         // Amount (on the right)
@@ -238,8 +296,8 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
             text = if (transaction.details.type == TransactionType.EXPENSE.value)
                 "-$${transaction.details.amount}" else "+$${transaction.details.amount}",
             style = MaterialTheme.typography.bodyLarge,
-            color = if (transaction.details.type == TransactionType.EXPENSE.value)
-                MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+            color = if (transaction.details.type == TransactionType.INCOME.value)
+                CColorGreen else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 8.dp)
         )
     }

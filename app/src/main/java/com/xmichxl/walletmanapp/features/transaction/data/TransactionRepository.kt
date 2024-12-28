@@ -1,9 +1,6 @@
 package com.xmichxl.walletmanapp.features.transaction.data
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class TransactionRepository @Inject constructor(private val transactionDao: TransactionDao) {
@@ -30,21 +27,16 @@ class TransactionRepository @Inject constructor(private val transactionDao: Tran
         return transactionDao.getTransactionById(id)
     }
 
-    // Linked tables Transaction With Accounts
-    fun getAllTransactionsWithAccounts(): Flow<List<TransactionWithAccounts>> {
-        return transactionDao.getAllTransactionsWithAccounts()
-    }
-
-    fun getTransactionWithAccountById(id: Long): Flow<TransactionWithAccounts> {
-        return transactionDao.getTransactionWithAccountsById(id)
-    }
-
-    // Linked tables Transaction With Details (Account, Cat, Subcat)
+    // ********************** Linked tables Transaction With Details (Account, Cat, Subcat)
     fun getTransactionWithDetailsById(id: Long): Flow<TransactionWithDetails>{
         return transactionDao.getTransactionWithDetailsById(id)
     }
 
     fun getAllTransactionsWithDetails(): Flow<List<TransactionWithDetails>>{
         return transactionDao.getAllTransactionsWithDetails()
+    }
+
+    fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransactionWithDetails>> {
+        return transactionDao.getTransactionsByDateRange(startDate, endDate)
     }
 }

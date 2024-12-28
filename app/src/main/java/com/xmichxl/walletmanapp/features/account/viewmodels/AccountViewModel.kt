@@ -3,7 +3,7 @@ package com.xmichxl.walletmanapp.features.account.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.xmichxl.walletmanapp.core.utils.TransactionType
-import com.xmichxl.walletmanapp.core.utils.getCurrentDateTime
+import com.xmichxl.walletmanapp.core.utils.getCurrentDateTimeIso
 import com.xmichxl.walletmanapp.features.account.data.Account
 import com.xmichxl.walletmanapp.features.account.data.AccountRepository
 import com.xmichxl.walletmanapp.features.shared.data.AccountTransactionRepository
@@ -93,7 +93,7 @@ class AccountViewModel @Inject constructor(
                     description = "Balance Adjustment",
                     accountToId = if (difference > 0) account.id else null,
                     accountFromId = if (difference < 0) account.id else null,
-                    date = getCurrentDateTime()
+                    date = getCurrentDateTimeIso()
                 )
                 sharedRepository.createTransactionAndUpdateBalance(adjustmentTransaction)
             }

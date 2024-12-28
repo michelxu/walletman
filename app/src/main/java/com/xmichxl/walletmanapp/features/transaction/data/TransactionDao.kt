@@ -25,14 +25,12 @@ interface TransactionDao {
     @Delete
     suspend fun delete(transaction: Transaction)
 
-    // **************** Transaction with Account
-    @androidx.room.Transaction
-    @Query("SELECT * FROM transactions WHERE id = :id")
-    fun getTransactionWithAccountsById(id: Long): Flow<TransactionWithAccounts>
-
-    @androidx.room.Transaction
-    @Query("SELECT * FROM transactions")
-    fun getAllTransactionsWithAccounts(): Flow<List<TransactionWithAccounts>>
+    @Query("""
+        SELECT * FROM transactions
+        WHERE date BETWEEN :startDate AND :endDate
+        ORDER BY date DESC
+    """)
+    fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransactionWithDetails>>
 
     // **************** Transaction With Details
     @androidx.room.Transaction

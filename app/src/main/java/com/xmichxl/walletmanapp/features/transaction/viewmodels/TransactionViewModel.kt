@@ -3,6 +3,7 @@ package com.xmichxl.walletmanapp.features.transaction.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.xmichxl.walletmanapp.core.utils.getDateRangeFor
 import com.xmichxl.walletmanapp.features.category.data.Category
 import com.xmichxl.walletmanapp.features.category.data.CategoryRepository
 import com.xmichxl.walletmanapp.features.shared.data.AccountTransactionRepository
@@ -10,7 +11,6 @@ import com.xmichxl.walletmanapp.features.subcategory.data.Subcategory
 import com.xmichxl.walletmanapp.features.subcategory.data.SubcategoryRepository
 import com.xmichxl.walletmanapp.features.transaction.data.Transaction
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionRepository
-import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithAccounts
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,23 +25,26 @@ class TransactionViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val subcategoryRepository: SubcategoryRepository
 ): ViewModel() {
+    // Control methods that triggers only in specific Views
+    private var hasLoadedCategories = false
+    private var isObservingCategorySelection = false
+
     // StateFlow to expose the list of transactions
     private val _transactionList = MutableStateFlow<List<Transaction>>(emptyList())
     val transactionList = _transactionList.asStateFlow()
 
-    private val _transactionsWithAccounts = MutableStateFlow<List<TransactionWithAccounts>>(emptyList())
-    val transactionsWithAccounts = _transactionsWithAccounts.asStateFlow()
-
     private val _transactionsWithDetails = MutableStateFlow<List<TransactionWithDetails>>(emptyList())
     val transactionsWithDetails = _transactionsWithDetails.asStateFlow()
-
 
     // StateFlow for the selected transaction (for editing)
     private val _selectedTransaction = MutableStateFlow<Transaction?>(null)
     val selectedTransaction = _selectedTransaction.asStateFlow()
 
-    private val _selectedTransactionWithAccount = MutableStateFlow<TransactionWithAccounts?>(null)
-    val selectedTransactionWithAccount = _selectedTransactionWithAccount.asStateFlow()
+    private val _selectedTransactionWithDetails = MutableStateFlow<TransactionWithDetails?>(null)
+    val selectedTransactionWithDetails = _selectedTransactionWithDetails.asStateFlow()
+
+    private val _transactionsByRange = MutableStateFlow<List<TransactionWithDetails>>(emptyList())
+    val transactionsByRange = _transactionsByRange.asStateFlow()
 
     private val _categoryList = MutableStateFlow<List<Category>>(emptyList())
     val categoryList = _categoryList.asStateFlow()
@@ -53,25 +56,15 @@ class TransactionViewModel @Inject constructor(
     val selectedCategoryId = _selectedCategoryId.asStateFlow()
 
     init {
-        //loadTransactions()
-        loadTransactionsWithAccounts()
-        loadTransactionsWithDetails()
-        loadCategories()
-        observeCategorySelection()
+        //loadTransactionsWithDetails()
+        getTransactionsByRange("lastWeek")
     }
 
     // Function to load transactions
-    private fun loadTransactionsWithAccounts() {
-        viewModelScope.launch {
-            repository.getAllTransactionsWithAccounts().collect { items ->
-                _transactionsWithAccounts.value = items
-            }
-        }
-    }
-
     private fun loadTransactionsWithDetails() {
         viewModelScope.launch {
             repository.getAllTransactionsWithDetails().collect { items ->
+                Log.d("Transactionwithdetails", items.toString())
                 _transactionsWithDetails.value = items
             }
         }
@@ -102,6 +95,9 @@ class TransactionViewModel @Inject constructor(
     }
 
     fun setSelectedCategoryId(id: Int) {
+        if (_selectedCategoryId.value == id) {
+            _selectedCategoryId.value = null // Reset to ensure observer triggers
+        }
         _selectedCategoryId.value = id
     }
 
@@ -109,11 +105,35 @@ class TransactionViewModel @Inject constructor(
     private fun observeCategorySelection() {
         viewModelScope.launch {
             selectedCategoryId.collect { id ->
-                id?.let { loadSubcategories(it) }
+                id?.let {
+                    clearSubcategories()
+                    loadSubcategories(it)
+                }
             }
         }
     }
 
+    // To trigger and load categories and subcategories (only in the specific views that calls these methods)
+    fun loadCategoriesIfNeeded() {
+        if (!hasLoadedCategories) {
+            loadCategories()
+            hasLoadedCategories = true
+        }
+    }
+    fun observeCategorySelectionIfNeeded() {
+        if (!isObservingCategorySelection) {
+            observeCategorySelection()
+            isObservingCategorySelection = true
+        }
+    }
+
+    fun clearSubcategories() {
+        _subcategoryList.value = emptyList()
+    }
+    fun resetCategoryAndSubcategories() {
+        _selectedCategoryId.value = null
+        clearSubcategories() // This already resets the subcategory list
+    }
 
     fun getTransactionById(id: Long){
         viewModelScope.launch {
@@ -122,13 +142,25 @@ class TransactionViewModel @Inject constructor(
             }
         }
     }
-    fun getTransactionWithAccountById(id: Long){
+    fun getTransactionWithDetailsById(id: Long){
         viewModelScope.launch {
-            repository.getTransactionWithAccountById(id).collect { transaction ->
-                _selectedTransactionWithAccount.value = transaction
+            repository.getTransactionWithDetailsById(id).collect { transaction ->
+                _selectedTransactionWithDetails.value = transaction
             }
         }
     }
+    fun getTransactionsByRange(timeRange: String) {
+        viewModelScope.launch {
+            val (startDate, endDate) = getDateRangeFor(timeRange)
+
+            repository.getTransactionsByDateRange(startDate, endDate)
+                .collect { transactions ->
+                    Log.d("Transactionbydaterange", transactions.toString())
+                    _transactionsByRange.value = transactions
+                }
+        }
+    }
+
     fun addTransaction(transaction: Transaction) = viewModelScope.launch { repository.addTransaction(transaction) }
     fun updateTransaction(transaction: Transaction) {
         try {

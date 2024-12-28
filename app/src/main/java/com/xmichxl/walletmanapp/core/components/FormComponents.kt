@@ -324,12 +324,12 @@ fun DatePickerTextField(
                 selectedHour = hourOfDay
                 selectedMinute = minute
                 showTimePicker = false
-                // Combine date and time into final format
+                // Combine date and time into ISO format
                 val formattedDateTime = String.format(
-                    "%02d-%02d-%04d %02d:%02d",
-                    selectedDay,
-                    selectedMonth + 1,
+                    "%04d-%02d-%02d %02d:%02d", // ISO format: yyyy-MM-dd HH:mm
                     selectedYear,
+                    selectedMonth + 1, // Months are 0-based in Calendar
+                    selectedDay,
                     selectedHour,
                     selectedMinute
                 )

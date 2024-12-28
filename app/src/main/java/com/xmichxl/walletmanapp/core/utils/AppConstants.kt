@@ -2,22 +2,21 @@ package com.xmichxl.walletmanapp.core.utils
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Icon
 import com.xmichxl.walletmanapp.R
 import com.xmichxl.walletmanapp.ui.theme.CColorBlack
 import com.xmichxl.walletmanapp.ui.theme.CColorBlue
+import com.xmichxl.walletmanapp.ui.theme.CColorGold
 import com.xmichxl.walletmanapp.ui.theme.CColorGray
 import com.xmichxl.walletmanapp.ui.theme.CColorGreen
 import com.xmichxl.walletmanapp.ui.theme.CColorMagenta
+import com.xmichxl.walletmanapp.ui.theme.CColorNavyBlue
+import com.xmichxl.walletmanapp.ui.theme.CColorOrange
 import com.xmichxl.walletmanapp.ui.theme.CColorRed
+import com.xmichxl.walletmanapp.ui.theme.CColorSilver
+import com.xmichxl.walletmanapp.ui.theme.CColorTeal
 import com.xmichxl.walletmanapp.ui.theme.CColorYellow
 
 // Global constants outside the object
@@ -74,12 +73,17 @@ object AppConstants {
 
     val colors = listOf(
         "Red" to CColorRed,
+        "Orange" to CColorOrange,
         "Blue" to CColorBlue,
         "Magenta" to CColorMagenta,
         "Green" to CColorGreen,
         "Yellow" to CColorYellow,
         "Black" to CColorBlack,
-        "Gray" to CColorGray
+        "Gray" to CColorGray,
+        "Silver" to CColorSilver,
+        "Teal" to CColorTeal,
+        "NavyBlue" to CColorNavyBlue,
+        "Gold" to CColorGold
     )
 }
 
@@ -92,7 +96,6 @@ object AppIcons {
         val Delete = Icons.Default.Delete
         val Back = Icons.AutoMirrored.Filled.ArrowBack
         val Add = Icons.Default.Add
-
     }
 
     object Transaction {
@@ -102,12 +105,21 @@ object AppIcons {
         val Adjustment = R.drawable.adjustment
     }
 
+    object Categories {
+        val Food = R.drawable.category_food
+        val Shopping = R.drawable.category_shopping
+        val Housing = R.drawable.category_housing
+        val Transportation = R.drawable.money
+        val Vehicle = R.drawable.money
+        val Life = R.drawable.money
+        val Communication = R.drawable.money
+        val Financial = R.drawable.money
+        val Income = R.drawable.money
+        val Other = R.drawable.money
+    }
+
     object PaymentMethod {
         val card = R.drawable.card
         val cash = R.drawable.cash
-    }
-
-    object Categories {
-        val Entertainment = Icons.Default.FavoriteBorder
     }
 }
