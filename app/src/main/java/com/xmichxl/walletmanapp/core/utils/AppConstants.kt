@@ -96,6 +96,7 @@ object AppIcons {
         val Delete = Icons.Default.Delete
         val Back = Icons.AutoMirrored.Filled.ArrowBack
         val Add = Icons.Default.Add
+        val BarChart = R.drawable.bar_chart
     }
 
     object Transaction {

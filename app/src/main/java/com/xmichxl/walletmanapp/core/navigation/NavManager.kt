@@ -11,6 +11,8 @@ import com.xmichxl.walletmanapp.core.views.HomeView
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.account.views.AccountAddView
 import com.xmichxl.walletmanapp.features.account.views.AccountEditView
+import com.xmichxl.walletmanapp.features.analytics.viewmodels.AnalyticsViewModel
+import com.xmichxl.walletmanapp.features.analytics.views.AnalyticsHomeView
 import com.xmichxl.walletmanapp.features.category.viewmodels.CategoryViewModel
 import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewModel
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
@@ -23,14 +25,15 @@ fun NavManager(
     accountViewModel: AccountViewModel,
     transactionViewModel: TransactionViewModel,
     categoryViewModel: CategoryViewModel,
-    subcategoryViewModel: SubcategoryViewModel
+    subcategoryViewModel: SubcategoryViewModel,
+    analyticsViewModel: AnalyticsViewModel
 ) {
 
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "Home") {
         composable("Home") {
-            HomeView(navController, modifier, accountViewModel, transactionViewModel)
+            HomeView(navController, modifier, accountViewModel, transactionViewModel, analyticsViewModel)
         }
 
         // ************ ACCOUNT
@@ -53,6 +56,11 @@ fun NavManager(
         )) {
             val id = it.arguments?.getLong("id") ?: 0
             TransactionEditView(navController, modifier, transactionViewModel, accountViewModel, id)
+        }
+
+        // ************ ANALYTICS
+        composable("AnalyticsHomeView") {
+            AnalyticsHomeView()
         }
     }
 }

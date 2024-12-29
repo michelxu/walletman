@@ -6,6 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.xmichxl.walletmanapp.features.analytics.data.CategoryAnalytics
+import com.xmichxl.walletmanapp.features.analytics.data.DailySpendingTrend
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -40,4 +42,24 @@ interface TransactionDao {
     @androidx.room.Transaction
     @Query("SELECT * FROM transactions")
     fun getAllTransactionsWithDetails(): Flow<List<TransactionWithDetails>>
+
+    // **************** Analytics
+    @Query("""
+        SELECT categoryId, SUM(amount) AS total
+        FROM transactions
+        WHERE type = 'Expense' AND date BETWEEN :startDate AND :endDate
+        GROUP BY categoryId
+        ORDER BY total DESC
+    """)
+    fun getCategoryAnalytics(startDate: String, endDate: String): Flow<List<CategoryAnalytics>>
+
+    @Query("""
+        SELECT date, SUM(amount) AS total
+        FROM transactions
+        WHERE type = 'Expense' AND date BETWEEN :startDate AND :endDate
+        GROUP BY date
+        ORDER BY date ASC
+    """)
+    fun getDailySpendingTrend(startDate: String, endDate: String): Flow<List<DailySpendingTrend>>
+
 }

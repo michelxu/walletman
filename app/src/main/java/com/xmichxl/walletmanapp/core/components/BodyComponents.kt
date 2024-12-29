@@ -330,11 +330,20 @@ fun BottomNavigationBar(
             }
         )
         NavigationBarItem(
-            icon = { Icon(painter = painterResource(id = AppIcons.Main.Account), contentDescription = "Accounts") },
-            label = { Text("Accounts") },
+            icon = { Icon(painter = painterResource(id = AppIcons.Main.BarChart), contentDescription = "Analytics") },
+            label = { Text("Analytics") },
             selected = selectedItem == 2,
             onClick = {
                 onItemSelected(2)
+                navController.navigate("AnalyticsHomeView")
+            }
+        )
+        NavigationBarItem(
+            icon = { Icon(painter = painterResource(id = AppIcons.Main.Account), contentDescription = "Accounts") },
+            label = { Text("Accounts") },
+            selected = selectedItem == 3,
+            onClick = {
+                onItemSelected(3)
                 navController.navigate("AccountAddView")
             }
         )
