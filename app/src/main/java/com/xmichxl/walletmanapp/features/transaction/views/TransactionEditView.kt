@@ -176,10 +176,10 @@ fun ContentEditAddView(
         accountToState = selectedAccountTo?.getDisplayName() ?: ""
         accountFromStateId = selectedAccountFrom?.id.toString()
         accountToStateId = selectedAccountTo?.id.toString()
-        categoryName = selectedTransactionWithDetails?.category?.name.toString()
-        categoryId = selectedTransactionWithDetails?.category?.id.toString()
-        subcategoryName = selectedTransactionWithDetails?.subcategory?.name.toString()
-        subcategoryId = selectedTransactionWithDetails?.subcategory?.id.toString()
+        categoryName = selectedTransactionWithDetails?.category?.name ?: ""
+        categoryId = selectedTransactionWithDetails?.category?.id?.toString() ?: ""
+        subcategoryName = selectedTransactionWithDetails?.subcategory?.name ?: ""
+        subcategoryId = selectedTransactionWithDetails?.subcategory?.id?.toString() ?: ""
 
         selectedTransactionWithDetails?.category?.id?.let {
             transactionViewModel.setSelectedCategoryId(
@@ -267,7 +267,7 @@ fun ContentEditAddView(
         )
 
         // ********************* ACCOUNT FROM
-        if (typeState == TransactionType.EXPENSE.value || typeState == TransactionType.TRANSFER.value) {
+        if (typeState == TransactionType.EXPENSE.value || typeState == TransactionType.TRANSFER.value || typeState == TransactionType.PAYMENT.value) {
             MainTextField(
                 value = accountFromState,
                 onValueChange = { accountFromState = it },
@@ -277,7 +277,7 @@ fun ContentEditAddView(
         }
 
         // ********************* ACCOUNT TO
-        if (typeState == TransactionType.INCOME.value || typeState == TransactionType.TRANSFER.value) {
+        if (typeState == TransactionType.INCOME.value || typeState == TransactionType.TRANSFER.value || typeState == TransactionType.PAYMENT.value) {
             MainTextField(
                 value = accountToState,
                 onValueChange = { accountToState = it },
@@ -290,6 +290,7 @@ fun ContentEditAddView(
         ButtonAtBottom(
             onClick = {
                 Log.d("Update transaction", descriptionState)
+                Log.d("Update data: " , categoryId)
                 when {
                     // VALIDATE FIELDS
                     descriptionState.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION

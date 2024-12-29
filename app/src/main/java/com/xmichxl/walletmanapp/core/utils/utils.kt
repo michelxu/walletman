@@ -3,6 +3,8 @@ package com.xmichxl.walletmanapp.core.utils
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.compose.ui.graphics.Color
+import co.yml.charts.ui.piechart.models.PieChartData
+import com.xmichxl.walletmanapp.features.analytics.data.CategoryAnalytics
 import com.xmichxl.walletmanapp.ui.theme.CColorBlack
 import com.xmichxl.walletmanapp.ui.theme.CColorBlue
 import com.xmichxl.walletmanapp.ui.theme.CColorGold
@@ -57,7 +59,7 @@ fun getIconFromString(iconName: String): Int {
     return when (iconName) {
         "food" -> AppIcons.Categories.Food
         "shopping" -> AppIcons.Categories.Shopping
-        "housing" -> AppIcons.Categories.Housing
+        "house" -> AppIcons.Categories.Housing
         "transport" -> AppIcons.Categories.Transportation
         "vehicle" -> AppIcons.Categories.Vehicle
         "entertainment" -> AppIcons.Categories.Life
@@ -66,6 +68,20 @@ fun getIconFromString(iconName: String): Int {
         "income" -> AppIcons.Categories.Income
         "other" -> AppIcons.Categories.Other
         else -> AppIcons.Transaction.Transfer
+    }
+}
+
+fun mapCategoryAnalyticsToSlices(
+    analytics: List<CategoryAnalytics>,
+    getColorsFromString: (String) -> Pair<Color, Color>
+): List<PieChartData.Slice> {
+    return analytics.map { category ->
+        val (primaryColor, _) = getColorsFromString(category.categoryColor)
+        PieChartData.Slice(
+            label = category.categoryName,
+            value = category.total.toFloat(),
+            color = primaryColor
+        )
     }
 }
 
@@ -142,4 +158,11 @@ fun getDateRangeFor(timeRange: String): Pair<String, String> {
 fun formatMoney(balance: Double): String {
     val formattedNumber = String.format("%,.2f", balance) // Add commas and two decimals
     return "$$formattedNumber" // Add the $ symbol
+}
+
+fun Double?.formatMoney(): String {
+    return this?.let {
+        val formattedNumber = String.format("%,.2f", it) // Add commas and two decimals
+        "$$formattedNumber" // Add the $ symbol
+    } ?: "$0.00" // Default value for null
 }

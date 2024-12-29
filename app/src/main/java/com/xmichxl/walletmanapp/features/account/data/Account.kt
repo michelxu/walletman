@@ -10,7 +10,8 @@ data class Account(
     val id: Int = 0,
     val name: String,
     val status: Int = 1,                // 1 Active 2 Inactive
-    val number: String?,                //Last 4 digits (Nullable for non-cards accounts)
+    val number: String?,                // Last 4 digits (Nullable for non-cards accounts)
+    val statementNumber: Int? = null,  // Fecha de corte
     val type: String,                   // "Cash", "Credit Card", "Debit Card", "Other"
     val balance: Double,
     val creditLimit: Int?,              // Nullable for non-credit accounts

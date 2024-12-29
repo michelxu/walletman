@@ -56,12 +56,12 @@ class TransactionViewModel @Inject constructor(
     val selectedCategoryId = _selectedCategoryId.asStateFlow()
 
     init {
-        //loadTransactionsWithDetails()
+        //getTransactionsWithDetails()
         getTransactionsByRange("lastWeek")
     }
 
     // Function to load transactions
-    private fun loadTransactionsWithDetails() {
+    fun getTransactionsWithDetails() {
         viewModelScope.launch {
             repository.getAllTransactionsWithDetails().collect { items ->
                 Log.d("Transactionwithdetails", items.toString())

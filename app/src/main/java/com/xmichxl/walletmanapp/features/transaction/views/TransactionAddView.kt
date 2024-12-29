@@ -192,14 +192,15 @@ fun ContentTransactionAddView(
         )
 
         // ********************* ACCOUNT FROM
-        if (type == TransactionType.EXPENSE.value || type == TransactionType.TRANSFER.value)
+        if (type == TransactionType.EXPENSE.value || type == TransactionType.TRANSFER.value || type == TransactionType.PAYMENT.value)
         {
             NameIdDropdownTextField(
                 value = accountFromName,
                 onValueChange = { name, id ->
                     accountFromName = name
                     accountFromId = id.toString()
-                    if (type != TransactionType.TRANSFER.value) accountToName = ""
+                    if (type != TransactionType.TRANSFER.value && type != TransactionType.PAYMENT.value)
+                        accountToName = ""
                 },
                 list = accountList.map { it.getDisplayName() to it.id }, // Convert Account to Pair<String, Int>
                 label = "Account From",
@@ -209,14 +210,15 @@ fun ContentTransactionAddView(
         }
 
         // ********************* ACCOUNT TO
-        if (type == TransactionType.INCOME.value || type == TransactionType.TRANSFER.value)
+        if (type == TransactionType.INCOME.value || type == TransactionType.TRANSFER.value || type == TransactionType.PAYMENT.value)
         {
             NameIdDropdownTextField(
                 value = accountToName,
                 onValueChange = { name, id ->
                     accountToName = name
                     accountToId = id.toString()
-                    if (type != TransactionType.TRANSFER.value) accountFromName = ""
+                    if (type != TransactionType.TRANSFER.value && type != TransactionType.PAYMENT.value)
+                        accountFromName = ""
                 },
                 list = accountList.map { it.getDisplayName() to it.id }, // Convert Account to Pair<String, Int>
                 label = "Account To",
@@ -232,10 +234,14 @@ fun ContentTransactionAddView(
             onClick = {
                 when {
                     // VALIDATE FIELDS
-                    type == TransactionType.EXPENSE.value && accountFromName.isBlank() || type == TransactionType.TRANSFER.value && accountFromName.isBlank() -> {
+                    type == TransactionType.EXPENSE.value && accountFromName.isBlank() ||
+                            type == TransactionType.TRANSFER.value && accountFromName.isBlank() ||
+                            type == TransactionType.PAYMENT.value && accountFromName.isBlank() -> {
                         errorMessage = FORM_ERROR_ACCOUNT_FROM
                     }
-                    type == TransactionType.INCOME.value && accountToName.isBlank() || type == TransactionType.TRANSFER.value && accountToName.isBlank() -> {
+                    type == TransactionType.INCOME.value && accountToName.isBlank() ||
+                            type == TransactionType.TRANSFER.value && accountToName.isBlank() ||
+                            type == TransactionType.PAYMENT.value && accountToName.isBlank() -> {
                         errorMessage = FORM_ERROR_ACCOUNT_TO
                     }
                     type == TransactionType.EXPENSE.value && categoryName.isBlank() || type == TransactionType.INCOME.value && categoryName.isBlank() -> {

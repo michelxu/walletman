@@ -1,5 +1,7 @@
 package com.xmichxl.walletmanapp.core.components
 
+import android.graphics.Typeface
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -22,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -33,18 +37,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import co.yml.charts.common.components.Legends
+import co.yml.charts.common.model.PlotType
+import co.yml.charts.common.utils.DataUtils
+import co.yml.charts.ui.piechart.charts.DonutPieChart
+import co.yml.charts.ui.piechart.models.PieChartConfig
+import co.yml.charts.ui.piechart.models.PieChartData
 import com.xmichxl.walletmanapp.core.utils.AppIcons
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.formatMoney
 import com.xmichxl.walletmanapp.core.utils.getColorsFromString
 import com.xmichxl.walletmanapp.core.utils.getIconFromString
 import com.xmichxl.walletmanapp.features.account.data.Account
+import com.xmichxl.walletmanapp.features.analytics.data.CategoryAnalytics
 import com.xmichxl.walletmanapp.features.transaction.data.TransactionWithDetails
 import com.xmichxl.walletmanapp.features.transaction.utils.getAccountName
 import com.xmichxl.walletmanapp.ui.theme.CColorGreen
@@ -80,6 +93,43 @@ fun BodyTitleSection(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.clickable { onClick() }
+        )
+    }
+}
+
+@Composable
+fun ResumeHomeView(thisMonth: Double?, lastMonth: Double?) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 15.dp)
+            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+            .padding(15.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        TotalSpentRow(label = "This Month", amount = thisMonth, isPrimary = true, isExpense = true)
+        TotalSpentRow(label = "Last Month", amount = lastMonth, isPrimary = false, isExpense = true)
+    }
+}
+
+@Composable
+fun TotalSpentRow(label: String, amount: Double?, isPrimary: Boolean, isExpense: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = if (isPrimary) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isPrimary) FontWeight.Medium else FontWeight.Normal,
+            color = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            text = if(isExpense) "-${amount.formatMoney()}" else "+${amount.formatMoney()}",
+            style = if (isPrimary) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
+            fontWeight = if (isPrimary) FontWeight.Bold else FontWeight.Normal,
+            color = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
         )
     }
 }
@@ -294,7 +344,7 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
         // Amount (on the right)
         Text(
             text = if (transaction.details.type == TransactionType.EXPENSE.value)
-                "-$${transaction.details.amount}" else "+$${transaction.details.amount}",
+                "-${transaction.details.amount.formatMoney()}" else "+${transaction.details.amount.formatMoney()}",
             style = MaterialTheme.typography.bodyLarge,
             color = if (transaction.details.type == TransactionType.INCOME.value)
                 CColorGreen else MaterialTheme.colorScheme.onSurface,
@@ -326,20 +376,91 @@ fun BottomNavigationBar(
             selected = selectedItem == 1,
             onClick = {
                 onItemSelected(1)
-                navController.navigate("TransactionAddView")
+                navController.navigate("TransactionHomeView")
+            }
+        )
+        NavigationBarItem(
+            icon = { Icon(painter = painterResource(id = AppIcons.Main.BarChart), contentDescription = "Analytics") },
+            label = { Text("Analytics") },
+            selected = selectedItem == 2,
+            onClick = {
+                onItemSelected(2)
+                navController.navigate("AnalyticsHomeView")
             }
         )
         NavigationBarItem(
             icon = { Icon(painter = painterResource(id = AppIcons.Main.Account), contentDescription = "Accounts") },
             label = { Text("Accounts") },
-            selected = selectedItem == 2,
+            selected = selectedItem == 3,
             onClick = {
-                onItemSelected(2)
+                onItemSelected(3)
                 navController.navigate("AccountAddView")
             }
         )
     }
 }
+
+@Composable
+fun CategoryAnalyticsDonutChart(
+    categoryAnalytics: List<CategoryAnalytics>,
+    it: PaddingValues
+) {
+    val context = LocalContext.current
+
+    if (categoryAnalytics.isEmpty()) {
+        // Show a loading indicator or placeholder
+        CircularProgressIndicator(
+            modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+        )
+    } else {
+        // Map the categoryAnalytics to PieChartData.Slice
+        val slices = categoryAnalytics.map { analytics ->
+            val (primaryColor, _) = getColorsFromString(analytics.categoryColor)
+            PieChartData.Slice(
+                label = analytics.categoryName,
+                value = analytics.total.toFloat(),
+                color = primaryColor
+            )
+        }
+
+        // Create the chart data
+        val donutChartData = PieChartData(
+            slices = slices,
+            plotType = PlotType.Donut
+        )
+
+        val donutChartConfig = PieChartConfig(
+            labelVisible = true,
+            strokeWidth = 120f,
+            labelColor = Color.Black,
+            activeSliceAlpha = .9f,
+            isEllipsizeEnabled = true,
+            labelTypeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            isAnimationEnable = true,
+            chartPadding = 25,
+            labelFontSize = 42.sp,
+        )
+
+        // Render the chart
+        Column(modifier = Modifier.padding(it)) {
+            Legends(legendsConfig = DataUtils.getLegendsConfigFromPieChartData(pieChartData = donutChartData, 3))
+
+            DonutPieChart(
+                modifier = Modifier
+                    .padding(horizontal = 32.dp)
+                    .fillMaxWidth()
+                    .height(500.dp),
+                donutChartData,
+                donutChartConfig
+            ) { slice ->
+                Toast.makeText(context, slice.label, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}
+
 
 
 // For displaying preview in

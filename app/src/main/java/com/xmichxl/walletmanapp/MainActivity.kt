@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.xmichxl.walletmanapp.core.navigation.NavManager
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
+import com.xmichxl.walletmanapp.features.analytics.viewmodels.AnalyticsViewModel
 import com.xmichxl.walletmanapp.features.category.viewmodels.CategoryViewModel
 import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewModel
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
         val transactionViewModel: TransactionViewModel by viewModels()
         val categoryViewModel: CategoryViewModel by viewModels()
         val subcategoryViewModel: SubcategoryViewModel by viewModels()
+        val analyticsViewModel: AnalyticsViewModel by viewModels()
 
         setContent {
             WalletmanappTheme {
@@ -36,7 +38,8 @@ class MainActivity : ComponentActivity() {
                         accountViewModel,
                         transactionViewModel,
                         categoryViewModel,
-                        subcategoryViewModel
+                        subcategoryViewModel,
+                        analyticsViewModel
                     )
                 }
             }

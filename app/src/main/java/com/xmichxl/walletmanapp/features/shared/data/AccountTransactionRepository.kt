@@ -122,6 +122,19 @@ class AccountTransactionRepository(
                 }
             }
 
+            TransactionType.PAYMENT.value -> {
+                transaction.accountFromId?.let { accountFromId ->
+                    val accountFrom = accountDao.getAccountById(accountFromId).first()
+                    val newBalanceFrom = accountFrom.balance - amountDifference
+                    accountDao.update(accountFrom.copy(balance = newBalanceFrom))
+                }
+                transaction.accountToId?.let { accountToId ->
+                    val accountTo = accountDao.getAccountById(accountToId).first()
+                    val newBalanceTo = accountTo.balance + amountDifference
+                    accountDao.update(accountTo.copy(balance = newBalanceTo))
+                }
+            }
+
             else -> {
                 Log.e("Transaction", "Unknown transaction type: ${transaction.type}")
             }
