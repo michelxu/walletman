@@ -8,6 +8,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +26,7 @@ import com.xmichxl.walletmanapp.core.components.BottomNavigationBar
 import com.xmichxl.walletmanapp.core.components.FloatButton
 import com.xmichxl.walletmanapp.core.components.LastTransactions
 import com.xmichxl.walletmanapp.core.components.MainTitle
+import com.xmichxl.walletmanapp.core.components.ResumeHomeView
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.analytics.viewmodels.AnalyticsViewModel
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
@@ -79,17 +81,24 @@ fun ContentHomeView(
     val transactionListWithDetails by transactionViewModel.transactionsWithDetails.collectAsState()
     val transactionListByRange by transactionViewModel.transactionsByRange.collectAsState()
     val categoryAnalytics by analyticsViewModel.categoryAnalytics.collectAsState()
+    val totalSpentCurrentMonth by analyticsViewModel.totalSpentCurrentMonth.collectAsState()
+    val totalSpentLastMonth by analyticsViewModel.totalSpentLastMonth.collectAsState()
 
     LaunchedEffect(Unit){
         analyticsViewModel.loadCategoryAnalytics("currentMonth")
+        analyticsViewModel.getTotalSpent("currentMonth")
+        analyticsViewModel.getTotalSpent("lastMonth")
+
     }
-    Log.d("AnalyticsByCat", categoryAnalytics.toString())
+    Log.d("Analytics bycat", categoryAnalytics.toString())
 
     Column(modifier = Modifier.padding(it)) {
         AccountsCarousel(accountList, navController)
 
-        BodyTitleSection(onClick = { /*TODO*/ }, title = "Last Week", onClickTitle = "View all")
+        BodyTitleSection(onClick = { navController.navigate("AnalyticsHomeView") }, title = "Resume", onClickTitle = "View more")
+        ResumeHomeView(totalSpentCurrentMonth, totalSpentLastMonth)
 
+        BodyTitleSection(onClick = { navController.navigate("TransactionHomeView") }, title = "Last week", onClickTitle = "View more")
         LastTransactions(transactionListByRange, navController)
     }
 }

@@ -143,3 +143,10 @@ fun formatMoney(balance: Double): String {
     val formattedNumber = String.format("%,.2f", balance) // Add commas and two decimals
     return "$$formattedNumber" // Add the $ symbol
 }
+
+fun Double?.formatMoney(): String {
+    return this?.let {
+        val formattedNumber = String.format("%,.2f", it) // Add commas and two decimals
+        "$$formattedNumber" // Add the $ symbol
+    } ?: "$0.00" // Default value for null
+}

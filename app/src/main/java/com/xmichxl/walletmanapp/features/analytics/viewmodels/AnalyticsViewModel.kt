@@ -15,11 +15,30 @@ import javax.inject.Inject
 @HiltViewModel
 class AnalyticsViewModel @Inject constructor(private val analyticsRepository: AnalyticsRepository): ViewModel() {
 
+    private val _totalSpentCurrentMonth = MutableStateFlow<Double?>(null)
+    val totalSpentCurrentMonth = _totalSpentCurrentMonth.asStateFlow()
+
+    private val _totalSpentLastMonth = MutableStateFlow<Double?>(null)
+    val totalSpentLastMonth = _totalSpentLastMonth.asStateFlow()
+
     private val _categoryAnalytics = MutableStateFlow<List<CategoryAnalytics>>(emptyList())
     val categoryAnalytics = _categoryAnalytics.asStateFlow()
 
     private val _dailySpendingTrend = MutableStateFlow<List<DailySpendingTrend>>(emptyList())
     val dailySpendingTrend = _dailySpendingTrend.asStateFlow()
+
+    fun getTotalSpent(timeRange: String) {
+        viewModelScope.launch {
+            val (startDate, endDate) = getDateRangeFor(timeRange)
+
+            analyticsRepository.getgetTotalSpent(startDate, endDate).collect { amount ->
+                when(timeRange) {
+                    "currentMonth" -> _totalSpentCurrentMonth.value = amount
+                    "lastMonth" -> _totalSpentLastMonth.value = amount
+                }
+            }
+        }
+    }
 
     fun loadCategoryAnalytics(timeRange: String) {
         viewModelScope.launch {
@@ -31,8 +50,10 @@ class AnalyticsViewModel @Inject constructor(private val analyticsRepository: An
         }
     }
 
-    fun loadDailySpendingTrend(startDate: String, endDate: String) {
+    fun loadDailySpendingTrend(timeRange: String) {
         viewModelScope.launch {
+            val (startDate, endDate) = getDateRangeFor(timeRange)
+
             analyticsRepository.getDailySpendingTrend(startDate, endDate).collect { data ->
                 _dailySpendingTrend.value = data
             }

@@ -85,6 +85,43 @@ fun BodyTitleSection(
 }
 
 @Composable
+fun ResumeHomeView(thisMonth: Double?, lastMonth: Double?) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 15.dp)
+            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+            .padding(15.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        TotalSpentRow(label = "This Month", amount = thisMonth, isPrimary = true, isExpense = true)
+        TotalSpentRow(label = "Last Month", amount = lastMonth, isPrimary = false, isExpense = true)
+    }
+}
+
+@Composable
+fun TotalSpentRow(label: String, amount: Double?, isPrimary: Boolean, isExpense: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = if (isPrimary) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isPrimary) FontWeight.Medium else FontWeight.Normal,
+            color = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            text = if(isExpense) "-${amount.formatMoney()}" else "+${amount.formatMoney()}",
+            style = if (isPrimary) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
+            fontWeight = if (isPrimary) FontWeight.Bold else FontWeight.Normal,
+            color = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+        )
+    }
+}
+
+@Composable
 fun AccountsCarousel(accounts: List<Account>, navController: NavController) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
@@ -294,7 +331,7 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
         // Amount (on the right)
         Text(
             text = if (transaction.details.type == TransactionType.EXPENSE.value)
-                "-$${transaction.details.amount}" else "+$${transaction.details.amount}",
+                "-${transaction.details.amount.formatMoney()}" else "+${transaction.details.amount.formatMoney()}",
             style = MaterialTheme.typography.bodyLarge,
             color = if (transaction.details.type == TransactionType.INCOME.value)
                 CColorGreen else MaterialTheme.colorScheme.onSurface,
@@ -326,7 +363,7 @@ fun BottomNavigationBar(
             selected = selectedItem == 1,
             onClick = {
                 onItemSelected(1)
-                navController.navigate("TransactionAddView")
+                navController.navigate("TransactionHomeView")
             }
         )
         NavigationBarItem(

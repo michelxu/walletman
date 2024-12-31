@@ -40,10 +40,17 @@ interface TransactionDao {
     fun getTransactionWithDetailsById(id: Long): Flow<TransactionWithDetails>
 
     @androidx.room.Transaction
-    @Query("SELECT * FROM transactions")
+    @Query("SELECT * FROM transactions ORDER BY date DESC")
     fun getAllTransactionsWithDetails(): Flow<List<TransactionWithDetails>>
 
     // **************** Analytics
+    @Query("""
+        SELECT SUM(amount) AS total
+        FROM transactions
+        WHERE type = 'Expense' AND date BETWEEN :startDate AND :endDate
+    """)
+    fun getTotalSpent(startDate: String, endDate: String): Flow<Double?>
+
     @Query("""
         SELECT categoryId, SUM(amount) AS total
         FROM transactions

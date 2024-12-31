@@ -18,6 +18,7 @@ import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewM
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 import com.xmichxl.walletmanapp.features.transaction.views.TransactionAddView
 import com.xmichxl.walletmanapp.features.transaction.views.TransactionEditView
+import com.xmichxl.walletmanapp.features.transaction.views.TransactionHomeView
 
 @Composable
 fun NavManager(
@@ -48,6 +49,9 @@ fun NavManager(
         }
 
         // ************ TRANSACTION
+        composable("TransactionHomeView") {
+            TransactionHomeView(navController, transactionViewModel)
+        }
         composable("TransactionAddView") {
             TransactionAddView(navController, modifier, transactionViewModel, accountViewModel, categoryViewModel)
         }
@@ -60,7 +64,7 @@ fun NavManager(
 
         // ************ ANALYTICS
         composable("AnalyticsHomeView") {
-            AnalyticsHomeView()
+            AnalyticsHomeView(navController)
         }
     }
 }
