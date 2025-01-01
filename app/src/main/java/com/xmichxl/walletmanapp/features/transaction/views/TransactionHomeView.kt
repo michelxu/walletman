@@ -47,7 +47,7 @@ fun TransactionHomeView(
                     navController.popBackStack()
                 }
             })
-    },
+        },
         bottomBar = {
             BottomNavigationBar(
                 selectedItem = selectedItemBottomBar,

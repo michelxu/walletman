@@ -40,7 +40,7 @@ class AnalyticsViewModel @Inject constructor(private val analyticsRepository: An
         }
     }
 
-    fun loadCategoryAnalytics(timeRange: String) {
+    fun getCategoryAnalytics(timeRange: String) {
         viewModelScope.launch {
             val (startDate, endDate) = getDateRangeFor(timeRange)
 
@@ -50,7 +50,7 @@ class AnalyticsViewModel @Inject constructor(private val analyticsRepository: An
         }
     }
 
-    fun loadDailySpendingTrend(timeRange: String) {
+    fun getDailySpendingTrend(timeRange: String) {
         viewModelScope.launch {
             val (startDate, endDate) = getDateRangeFor(timeRange)
 

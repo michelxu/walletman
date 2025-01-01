@@ -60,7 +60,8 @@ enum class TransactionType(val value: String) {
     EXPENSE("Expense"),
     INCOME("Income"),
     TRANSFER("Transfer"),
-    ADJUSTMENT("Adjustment")
+    ADJUSTMENT("Adjustment"),
+    PAYMENT("Payment")
 }
 
 
@@ -69,7 +70,7 @@ enum class TransactionType(val value: String) {
 object AppConstants {
     val accountTypes = listOf("Debit Card", "Credit Card", "Cash", "Other")
 
-    val transactionTypes = listOf("Expense", "Income", "Transfer")
+    val transactionTypes = listOf("Expense", "Income", "Transfer", "Payment")
 
     val colors = listOf(
         "Red" to CColorRed,

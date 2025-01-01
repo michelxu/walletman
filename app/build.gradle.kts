@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.xmichxl.walletmanapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -68,6 +68,9 @@ dependencies {
 
     // Swipe
     implementation("me.saket.swipe:swipe:1.1.1")
+
+    // YCharts
+    implementation ("co.yml:ycharts:2.1.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

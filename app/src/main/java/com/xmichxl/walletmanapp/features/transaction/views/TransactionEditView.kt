@@ -267,7 +267,7 @@ fun ContentEditAddView(
         )
 
         // ********************* ACCOUNT FROM
-        if (typeState == TransactionType.EXPENSE.value || typeState == TransactionType.TRANSFER.value) {
+        if (typeState == TransactionType.EXPENSE.value || typeState == TransactionType.TRANSFER.value || typeState == TransactionType.PAYMENT.value) {
             MainTextField(
                 value = accountFromState,
                 onValueChange = { accountFromState = it },
@@ -277,7 +277,7 @@ fun ContentEditAddView(
         }
 
         // ********************* ACCOUNT TO
-        if (typeState == TransactionType.INCOME.value || typeState == TransactionType.TRANSFER.value) {
+        if (typeState == TransactionType.INCOME.value || typeState == TransactionType.TRANSFER.value || typeState == TransactionType.PAYMENT.value) {
             MainTextField(
                 value = accountToState,
                 onValueChange = { accountToState = it },

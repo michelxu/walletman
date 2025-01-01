@@ -64,7 +64,7 @@ fun NavManager(
 
         // ************ ANALYTICS
         composable("AnalyticsHomeView") {
-            AnalyticsHomeView(navController)
+            AnalyticsHomeView(navController, analyticsViewModel)
         }
     }
 }
