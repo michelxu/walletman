@@ -52,10 +52,11 @@ interface TransactionDao {
     fun getTotalSpent(startDate: String, endDate: String): Flow<Double?>
 
     @Query("""
-        SELECT categoryId, SUM(amount) AS total
-        FROM transactions
-        WHERE type = 'Expense' AND date BETWEEN :startDate AND :endDate
-        GROUP BY categoryId
+        SELECT t.categoryId, c.name AS categoryName, c.color AS categoryColor, c.icon AS categoryIcon, SUM(t.amount) AS total
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.type = 'Expense' AND t.date BETWEEN :startDate AND :endDate
+        GROUP BY t.categoryId, c.name, c.color, c.icon
         ORDER BY total DESC
     """)
     fun getCategoryAnalytics(startDate: String, endDate: String): Flow<List<CategoryAnalytics>>

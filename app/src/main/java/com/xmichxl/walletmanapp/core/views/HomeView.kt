@@ -87,9 +87,9 @@ fun ContentHomeView(
         //analyticsViewModel.loadCategoryAnalytics("currentMonth")
         analyticsViewModel.getTotalSpent("currentMonth")
         analyticsViewModel.getTotalSpent("lastMonth")
-
     }
-    Log.d("Analytics bycat", categoryAnalytics.toString())
+
+    //Log.d("Analytics bycat", categoryAnalytics.toString())
 
     Column(modifier = Modifier.padding(it)) {
         AccountsCarousel(accountList, navController)
