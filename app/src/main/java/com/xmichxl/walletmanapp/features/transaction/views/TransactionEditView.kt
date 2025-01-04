@@ -176,10 +176,10 @@ fun ContentEditAddView(
         accountToState = selectedAccountTo?.getDisplayName() ?: ""
         accountFromStateId = selectedAccountFrom?.id.toString()
         accountToStateId = selectedAccountTo?.id.toString()
-        categoryName = selectedTransactionWithDetails?.category?.name.toString()
-        categoryId = selectedTransactionWithDetails?.category?.id.toString()
-        subcategoryName = selectedTransactionWithDetails?.subcategory?.name.toString()
-        subcategoryId = selectedTransactionWithDetails?.subcategory?.id.toString()
+        categoryName = selectedTransactionWithDetails?.category?.name ?: ""
+        categoryId = selectedTransactionWithDetails?.category?.id?.toString() ?: ""
+        subcategoryName = selectedTransactionWithDetails?.subcategory?.name ?: ""
+        subcategoryId = selectedTransactionWithDetails?.subcategory?.id?.toString() ?: ""
 
         selectedTransactionWithDetails?.category?.id?.let {
             transactionViewModel.setSelectedCategoryId(
@@ -290,6 +290,7 @@ fun ContentEditAddView(
         ButtonAtBottom(
             onClick = {
                 Log.d("Update transaction", descriptionState)
+                Log.d("Update data: " , categoryId)
                 when {
                     // VALIDATE FIELDS
                     descriptionState.isBlank() -> errorMessage = FORM_ERROR_DESCRIPTION

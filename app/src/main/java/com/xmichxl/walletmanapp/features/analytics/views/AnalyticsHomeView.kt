@@ -16,9 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import co.yml.charts.common.utils.DataUtils
 import com.xmichxl.walletmanapp.core.components.BottomNavigationBar
 import com.xmichxl.walletmanapp.core.components.CategoryAnalyticsDonutChart
 import com.xmichxl.walletmanapp.core.components.MainIconButton
