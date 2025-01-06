@@ -46,6 +46,9 @@ class TransactionViewModel @Inject constructor(
     private val _transactionsByRange = MutableStateFlow<List<TransactionWithDetails>>(emptyList())
     val transactionsByRange = _transactionsByRange.asStateFlow()
 
+    private val _filteredTransactions = MutableStateFlow<List<TransactionWithDetails>>(emptyList())
+    val filteredTransactions = _filteredTransactions.asStateFlow()
+
     private val _categoryList = MutableStateFlow<List<Category>>(emptyList())
     val categoryList = _categoryList.asStateFlow()
 
@@ -157,6 +160,28 @@ class TransactionViewModel @Inject constructor(
                 .collect { transactions ->
                     Log.d("Transactionbydaterange", transactions.toString())
                     _transactionsByRange.value = transactions
+                }
+        }
+    }
+
+    fun applyFilters(filters: Map<String, String>) {
+        val dateRange = filters["dateRange"]?.takeIf { it != "All" }
+        val type = filters["type"]?.takeIf { it != "All" }
+        val accountId = filters["account"]?.takeIf { it != "All" }
+        val categoryId = filters["categoryId"]?.takeIf { it != "All" }
+
+        // Handle start and end date only if dateRange is not null
+        val (startDate, endDate) = dateRange?.let { getDateRangeFor(it) } ?: Pair(null, null)
+
+        Log.d("daterange: ", dateRange.toString())
+        Log.d("type: ", type.toString())
+        Log.d("account: ", accountId.toString())
+        Log.d("category: ", categoryId.toString())
+
+        viewModelScope.launch {
+            repository.getFilteredTransactions(startDate, endDate, null,  type, categoryId?.toInt())
+                .collect { transactions ->
+                    _filteredTransactions.value = transactions
                 }
         }
     }

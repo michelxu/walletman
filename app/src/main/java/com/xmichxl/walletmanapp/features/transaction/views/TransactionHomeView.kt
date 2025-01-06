@@ -10,22 +10,24 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.xmichxl.walletmanapp.core.components.BottomNavigationBar
+import com.xmichxl.walletmanapp.core.components.FilterRow
 import com.xmichxl.walletmanapp.core.components.FloatButton
 import com.xmichxl.walletmanapp.core.components.LastTransactions
 import com.xmichxl.walletmanapp.core.components.MainIconButton
 import com.xmichxl.walletmanapp.core.components.MainTitle
+import com.xmichxl.walletmanapp.core.utils.AppConstants
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,13 +74,38 @@ fun ContentTransactionHomeView(
     transactionViewModel: TransactionViewModel
 ) {
     val transactionListWithDetails by transactionViewModel.transactionsWithDetails.collectAsState()
+    val filteredTransactions by transactionViewModel.filteredTransactions.collectAsState()
+    val categoryList by transactionViewModel.categoryList.collectAsState()
+    var filters by remember { mutableStateOf(emptyMap<String, String>()) }
+    val dateRanges = AppConstants.dateRangesFilter
+    var timeRange by remember { mutableStateOf("currentMonth") }
+
+    // FilterRow Selected
+    val selectedDateRange = remember { mutableStateOf("All") }
+    val selectedType = remember { mutableStateOf("All") }
+    val selectedAccount = remember { mutableStateOf("All") }
+    val selectedCategory = remember { mutableStateOf("All") }
 
     LaunchedEffect(Unit) {
+        transactionViewModel.loadCategoriesIfNeeded()
         transactionViewModel.getTransactionsWithDetails()
     }
     Log.d("transactions home", transactionListWithDetails.toString())
+    Log.d("filteredTransactions", filteredTransactions.toString())
+    Log.d("categoryList", categoryList.toString())
+
 
     Column(modifier = Modifier.padding(it)) {
+        // Call to FilterRow composable
+        FilterRow(
+            selectedDateRange = selectedDateRange,
+            selectedType = selectedType,
+            selectedCategory = selectedCategory,
+            categoryList = categoryList
+        ) { selectedFilters ->
+            // Handle the filters once they are applied
+            transactionViewModel.applyFilters(selectedFilters)
+        }
         LastTransactions(transactionListWithDetails, navController)
     }
 }

@@ -27,6 +27,7 @@ interface TransactionDao {
     @Delete
     suspend fun delete(transaction: Transaction)
 
+    @androidx.room.Transaction
     @Query("""
         SELECT * FROM transactions
         WHERE date BETWEEN :startDate AND :endDate
@@ -42,6 +43,23 @@ interface TransactionDao {
     @androidx.room.Transaction
     @Query("SELECT * FROM transactions ORDER BY date DESC")
     fun getAllTransactionsWithDetails(): Flow<List<TransactionWithDetails>>
+
+    @Query("""
+    SELECT * FROM transactions
+    WHERE (:startDate IS NULL OR date >= :startDate) 
+    AND (:endDate IS NULL OR date <= :endDate) 
+    AND (:accountId IS NULL OR accountFromId = :accountId OR accountToId = :accountId) 
+    AND (:type IS NULL OR type = :type) 
+    AND (:categoryId IS NULL OR categoryId = :categoryId)
+    ORDER BY date DESC
+""")
+    fun getFilteredTransactions(
+        startDate: String?,
+        endDate: String?,
+        accountId: Int?,
+        type: String?,
+        categoryId: Int?
+    ): Flow<List<TransactionWithDetails>>
 
     // **************** Analytics
     @Query("""

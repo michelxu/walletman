@@ -71,6 +71,24 @@ object AppConstants {
     val accountTypes = listOf("Debit Card", "Credit Card", "Cash", "Other")
 
     val transactionTypes = listOf("Expense", "Income", "Transfer", "Payment")
+    //val transactionTypesFilter = listOf("Expense", "Income", "Transfer", "Payment", "Adjustment", "All")
+    //val dateRangesFilter = listOf("today", "yesterday", "lastWeek", "currentMonth", "lastMonth", "All")
+    val dateRangesFilter = mapOf(
+        "today" to "Today",
+        "yesterday" to "Yesterday",
+        "lastWeek" to "Last Week",
+        "currentMonth" to "Current Month",
+        "lastMonth" to "Last Month",
+        "All" to "All"
+    )
+    val transactionTypesFilter = mapOf(
+        "Expense" to "Expense",
+        "Income" to "Income",
+        "Transfer" to "Transfer",
+        "Payment" to "Payment",
+        "Adjustment" to "Adjustment",
+        "All" to "All"
+    )
 
     val colors = listOf(
         "Red" to CColorRed,
@@ -105,19 +123,20 @@ object AppIcons {
         val Expense = R.drawable.expense
         val Transfer = R.drawable.transfer
         val Adjustment = R.drawable.adjustment
+        val Payment = R.drawable.expense
     }
 
     object Categories {
         val Food = R.drawable.category_food
         val Shopping = R.drawable.category_shopping
         val Housing = R.drawable.category_housing
-        val Transportation = R.drawable.money
-        val Vehicle = R.drawable.money
-        val Life = R.drawable.money
-        val Communication = R.drawable.money
+        val Transportation = R.drawable.category_transportation
+        val Vehicle = R.drawable.category_vehicle
+        val Life = R.drawable.category_life
+        val Communication = R.drawable.category_communication
         val Financial = R.drawable.money
-        val Income = R.drawable.money
-        val Other = R.drawable.money
+        val Income = R.drawable.income
+        val Other = R.drawable.category_other
     }
 
     object PaymentMethod {
