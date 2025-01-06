@@ -298,7 +298,10 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         val (primaryColor, secondaryColor) = getColorsFromString(transaction.category?.color ?: "Black")
-        val icon = getIconFromString(transaction.category?.icon ?: "")
+        val icon = getIconFromString(
+            transactionType = transaction.details.type,
+            iconName = transaction.category?.icon ?: ""
+        )
 
         // Rounded Shape with Icon (on the left)
         Box(
@@ -434,7 +437,8 @@ fun CategoryAnalyticsDonutChart(
         val donutChartConfig = PieChartConfig(
             labelVisible = true,
             strokeWidth = 120f,
-            labelColor = Color.Black,
+            labelColor = MaterialTheme.colorScheme.onSurface,
+            backgroundColor = MaterialTheme.colorScheme.background,
             activeSliceAlpha = .9f,
             isEllipsizeEnabled = true,
             labelTypeface = Typeface.defaultFromStyle(Typeface.BOLD),
@@ -450,7 +454,8 @@ fun CategoryAnalyticsDonutChart(
             DonutPieChart(
                 modifier = Modifier
                     .padding(horizontal = 32.dp)
-                    .fillMaxWidth()
+                    //.fillMaxWidth()
+                    .width(500.dp)
                     .height(500.dp),
                 donutChartData,
                 donutChartConfig

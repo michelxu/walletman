@@ -55,19 +55,29 @@ fun getColorsFromString(colorName: String): Pair<Color, Color> {
     }
 }
 
-fun getIconFromString(iconName: String): Int {
-    return when (iconName) {
-        "food" -> AppIcons.Categories.Food
-        "shopping" -> AppIcons.Categories.Shopping
-        "house" -> AppIcons.Categories.Housing
-        "transport" -> AppIcons.Categories.Transportation
-        "vehicle" -> AppIcons.Categories.Vehicle
-        "entertainment" -> AppIcons.Categories.Life
-        "communication" -> AppIcons.Categories.Communication
-        "bank" -> AppIcons.Categories.Financial
-        "income" -> AppIcons.Categories.Income
-        "other" -> AppIcons.Categories.Other
-        else -> AppIcons.Transaction.Transfer
+fun getIconFromString(transactionType: String, iconName: String): Int {
+    return when {
+        // First check for known category icons by iconName
+        iconName == "food" -> AppIcons.Categories.Food
+        iconName == "shopping" -> AppIcons.Categories.Shopping
+        iconName == "house" -> AppIcons.Categories.Housing
+        iconName == "transport" -> AppIcons.Categories.Transportation
+        iconName == "vehicle" -> AppIcons.Categories.Vehicle
+        iconName == "entertainment" -> AppIcons.Categories.Life
+        iconName == "communication" -> AppIcons.Categories.Communication
+        iconName == "bank" -> AppIcons.Categories.Financial
+        iconName == "income" -> AppIcons.Categories.Income
+        iconName == "other" -> AppIcons.Categories.Other
+
+        // Fallback to transaction type if iconName is not matched
+        transactionType == TransactionType.INCOME.value -> AppIcons.Transaction.Income
+        transactionType == TransactionType.EXPENSE.value -> AppIcons.Transaction.Expense
+        transactionType == TransactionType.TRANSFER.value -> AppIcons.Transaction.Transfer
+        transactionType == TransactionType.ADJUSTMENT.value -> AppIcons.Transaction.Adjustment
+        transactionType == TransactionType.PAYMENT.value -> AppIcons.Transaction.Payment
+
+        // Default icon if no matches
+        else -> AppIcons.Categories.Other
     }
 }
 

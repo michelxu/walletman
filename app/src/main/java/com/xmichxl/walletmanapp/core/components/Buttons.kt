@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.xmichxl.walletmanapp.core.utils.AppIcons
 
@@ -42,6 +43,13 @@ fun FloatButton(onClick: () -> Unit) {
 fun MainIconButton(icon: ImageVector, onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(imageVector = icon, contentDescription = null, tint = Color.White)
+    }
+}
+
+@Composable
+fun MainIconButton(icon: Int, onClick: () -> Unit, modifier: Modifier) {
+    IconButton(onClick = onClick, modifier) {
+        Icon(painter = painterResource(icon), contentDescription = null, tint = Color.White)
     }
 }
 

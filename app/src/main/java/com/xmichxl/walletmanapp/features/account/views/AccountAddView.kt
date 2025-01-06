@@ -69,7 +69,7 @@ fun ContentAccountAddView(
         var balance by remember { mutableStateOf("") }
         var creditLimit by remember { mutableStateOf("") }
         var type by remember { mutableStateOf("") }
-        var selectedColor by remember { mutableStateOf("Light Gray") }
+        var selectedColor by remember { mutableStateOf("Gray") }
 
         var errorMessage by remember { mutableStateOf<String?>(null) }
 

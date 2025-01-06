@@ -39,4 +39,8 @@ class TransactionRepository @Inject constructor(private val transactionDao: Tran
     fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransactionWithDetails>> {
         return transactionDao.getTransactionsByDateRange(startDate, endDate)
     }
+
+    fun getFilteredTransactions(startDate: String?, endDate: String?, accountId: Int?, type: String?, categoryId: Int?): Flow<List<TransactionWithDetails>> {
+        return transactionDao.getFilteredTransactions(startDate, endDate, accountId, type, categoryId)
+    }
 }
