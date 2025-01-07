@@ -28,14 +28,16 @@ import com.xmichxl.walletmanapp.core.components.LastTransactions
 import com.xmichxl.walletmanapp.core.components.MainIconButton
 import com.xmichxl.walletmanapp.core.components.MainTitle
 import com.xmichxl.walletmanapp.core.utils.AppConstants
+import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionHomeView(
     navController: NavController,
-    transactionViewModel: TransactionViewModel
-) {
+    transactionViewModel: TransactionViewModel,
+    accountViewModel: AccountViewModel
+    ) {
     var selectedItemBottomBar by remember { mutableIntStateOf(1) }
 
     Scaffold(
@@ -63,7 +65,7 @@ fun TransactionHomeView(
             }
         }
     ) {
-        ContentTransactionHomeView(it, navController, transactionViewModel)
+        ContentTransactionHomeView(it, navController, transactionViewModel, accountViewModel)
     }
 }
 
@@ -71,11 +73,13 @@ fun TransactionHomeView(
 fun ContentTransactionHomeView(
     it: PaddingValues,
     navController: NavController,
-    transactionViewModel: TransactionViewModel
+    transactionViewModel: TransactionViewModel,
+    accountViewModel: AccountViewModel
 ) {
     val transactionListWithDetails by transactionViewModel.transactionsWithDetails.collectAsState()
     val filteredTransactions by transactionViewModel.filteredTransactions.collectAsState()
     val categoryList by transactionViewModel.categoryList.collectAsState()
+    val accountList by accountViewModel.accountList.collectAsState()
     var filters by remember { mutableStateOf(emptyMap<String, String>()) }
     val dateRanges = AppConstants.dateRangesFilter
     var timeRange by remember { mutableStateOf("currentMonth") }
@@ -101,11 +105,13 @@ fun ContentTransactionHomeView(
             selectedDateRange = selectedDateRange,
             selectedType = selectedType,
             selectedCategory = selectedCategory,
-            categoryList = categoryList
+            selectedAccount = selectedAccount,
+            categoryList = categoryList,
+            accountList = accountList
         ) { selectedFilters ->
             // Handle the filters once they are applied
             transactionViewModel.applyFilters(selectedFilters)
         }
-        LastTransactions(transactionListWithDetails, navController)
+        LastTransactions(filteredTransactions, navController)
     }
 }

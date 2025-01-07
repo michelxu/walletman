@@ -167,7 +167,7 @@ class TransactionViewModel @Inject constructor(
     fun applyFilters(filters: Map<String, String>) {
         val dateRange = filters["dateRange"]?.takeIf { it != "All" }
         val type = filters["type"]?.takeIf { it != "All" }
-        val accountId = filters["account"]?.takeIf { it != "All" }
+        val accountId = filters["accountId"]?.takeIf { it != "All" }
         val categoryId = filters["categoryId"]?.takeIf { it != "All" }
 
         // Handle start and end date only if dateRange is not null
@@ -179,7 +179,7 @@ class TransactionViewModel @Inject constructor(
         Log.d("category: ", categoryId.toString())
 
         viewModelScope.launch {
-            repository.getFilteredTransactions(startDate, endDate, null,  type, categoryId?.toInt())
+            repository.getFilteredTransactions(startDate, endDate, accountId?.toInt(), type, categoryId?.toInt())
                 .collect { transactions ->
                     _filteredTransactions.value = transactions
                 }

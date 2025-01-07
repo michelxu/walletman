@@ -50,8 +50,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import com.xmichxl.walletmanapp.R
 import com.xmichxl.walletmanapp.core.utils.AppConstants
+import com.xmichxl.walletmanapp.core.utils.AppIcons
 import com.xmichxl.walletmanapp.core.utils.filterDecimals
+import com.xmichxl.walletmanapp.features.account.data.Account
 import com.xmichxl.walletmanapp.features.category.data.Category
 import java.util.Calendar
 
@@ -518,13 +521,16 @@ fun FilterRow(
     selectedDateRange: MutableState<String>,
     selectedType: MutableState<String>,
     selectedCategory: MutableState<String>,
+    selectedAccount: MutableState<String>,
     categoryList: List<Category>,
+    accountList: List<Account>,
     onFilterApplied: (Map<String, String>) -> Unit
 ) {
     val filters = remember { mutableStateMapOf<String, String>() }
     val dateRangesMap = AppConstants.dateRangesFilter
     val transactionTypesMap = AppConstants.transactionTypesFilter
-    val categoryMap = categoryList.associate { it.id to it.name }
+    val categoryMap = categoryList.associate { it.id to it.name } + ("All" to "All")
+    val accountMap = accountList.associate { it.id to it.name } + ("All" to "All")
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -584,14 +590,45 @@ fun FilterRow(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
+            item {
+                FilterDropdown(
+                    label = "Account",
+                    selectedValue = selectedAccount.value,
+                    options = accountMap,
+                    onValueSelected = { selectedId ->
+                        selectedAccount.value = accountMap[selectedId] ?: "All"
+                        filters["accountId"] = selectedId.toString()
+                        onFilterApplied(filters)
+                    },
+                    modifier = Modifier
+                        .wrapContentWidth(Alignment.Start)
+                        .width(180.dp) // Set fixed width for dropdown
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
         }
+
+        Button(
+            onClick = {
+                selectedDateRange.value = "All"
+                filters["dateRange"] = "All"
+                selectedType.value = "All"
+                filters["type"] = "All"
+                selectedCategory.value = "All"
+                filters["categoryId"] = "All"
+                selectedAccount.value = "All"
+                filters["accountId"] = "All"
+                onFilterApplied(filters)
+            },
+            modifier = Modifier.padding(start = 8.dp).width(50.dp) // Set fixed width for button
+        ){ Text("R") }
 
         // Apply button, now aligned at the right end
         Button(
             onClick = { onFilterApplied(filters) },
-            modifier = Modifier.padding(start = 8.dp).width(100.dp) // Set fixed width for button
+            modifier = Modifier.padding(start = 8.dp).width(50.dp) // Set fixed width for button
         ) {
-            Text(text = "Search")
+            Text(text = "S")
         }
     }
 }

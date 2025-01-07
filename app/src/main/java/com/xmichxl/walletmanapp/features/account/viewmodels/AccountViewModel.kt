@@ -20,7 +20,7 @@ class AccountViewModel @Inject constructor(
     private val repository: AccountRepository,
     private val sharedRepository: AccountTransactionRepository
 ): ViewModel() {
-    // StateFlow to expose the list of transactions
+    // StateFlow to expose the list of accounts
     private val _accountList = MutableStateFlow<List<Account>>(emptyList())
     val accountList = _accountList.asStateFlow()
 

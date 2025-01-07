@@ -50,7 +50,7 @@ fun NavManager(
 
         // ************ TRANSACTION
         composable("TransactionHomeView") {
-            TransactionHomeView(navController, transactionViewModel)
+            TransactionHomeView(navController, transactionViewModel, accountViewModel)
         }
         composable("TransactionAddView") {
             TransactionAddView(navController, modifier, transactionViewModel, accountViewModel, categoryViewModel)
