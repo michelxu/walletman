@@ -14,6 +14,8 @@ import com.xmichxl.walletmanapp.features.account.views.AccountEditView
 import com.xmichxl.walletmanapp.features.analytics.viewmodels.AnalyticsViewModel
 import com.xmichxl.walletmanapp.features.analytics.views.AnalyticsHomeView
 import com.xmichxl.walletmanapp.features.category.viewmodels.CategoryViewModel
+import com.xmichxl.walletmanapp.features.exportimport.viewmodels.ExportImportViewModel
+import com.xmichxl.walletmanapp.features.exportimport.views.ExportImportHomeView
 import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewModel
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 import com.xmichxl.walletmanapp.features.transaction.views.TransactionAddView
@@ -27,7 +29,8 @@ fun NavManager(
     transactionViewModel: TransactionViewModel,
     categoryViewModel: CategoryViewModel,
     subcategoryViewModel: SubcategoryViewModel,
-    analyticsViewModel: AnalyticsViewModel
+    analyticsViewModel: AnalyticsViewModel,
+    exportImportViewModel: ExportImportViewModel
 ) {
 
     val navController = rememberNavController()
@@ -65,6 +68,13 @@ fun NavManager(
         // ************ ANALYTICS
         composable("AnalyticsHomeView") {
             AnalyticsHomeView(navController, analyticsViewModel)
+        }
+
+        // ************ EXPORT IMPORT
+        composable("ExportImportHomeView") {
+            ExportImportHomeView(
+                viewModel = exportImportViewModel
+            )
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.xmichxl.walletmanapp.features.shared.data
 
+import android.content.Context
 import android.util.Log
+import com.xmichxl.walletmanapp.features.exportimport.utils.ExportImportUtils
 import com.xmichxl.walletmanapp.core.utils.TransactionType
 import com.xmichxl.walletmanapp.core.utils.getCurrentDateTimeIso
 import com.xmichxl.walletmanapp.features.account.data.Account
@@ -13,7 +15,8 @@ import kotlinx.coroutines.withContext
 
 class AccountTransactionRepository(
     private val accountDao: AccountDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val context: Context
 ) {
     suspend fun createAccountWithInitialTransaction(account: Account, initialBalance: Double) {
         withContext(Dispatchers.IO) {
@@ -139,5 +142,13 @@ class AccountTransactionRepository(
                 Log.e("Transaction", "Unknown transaction type: ${transaction.type}")
             }
         }
+    }
+
+    suspend fun exportData(): String {
+        return ExportImportUtils.exportDatabase(accountDao, transactionDao)
+    }
+
+    suspend fun importData(jsonData: String) {
+        ExportImportUtils.importDatabase(jsonData, accountDao, transactionDao)
     }
 }

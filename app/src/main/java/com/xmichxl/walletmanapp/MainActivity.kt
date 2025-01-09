@@ -13,6 +13,7 @@ import com.xmichxl.walletmanapp.core.navigation.NavManager
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
 import com.xmichxl.walletmanapp.features.analytics.viewmodels.AnalyticsViewModel
 import com.xmichxl.walletmanapp.features.category.viewmodels.CategoryViewModel
+import com.xmichxl.walletmanapp.features.exportimport.viewmodels.ExportImportViewModel
 import com.xmichxl.walletmanapp.features.subcategory.viewmodels.SubcategoryViewModel
 import com.xmichxl.walletmanapp.features.transaction.viewmodels.TransactionViewModel
 import com.xmichxl.walletmanapp.ui.theme.WalletmanappTheme
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
         val categoryViewModel: CategoryViewModel by viewModels()
         val subcategoryViewModel: SubcategoryViewModel by viewModels()
         val analyticsViewModel: AnalyticsViewModel by viewModels()
+        val exportImportViewModel: ExportImportViewModel by viewModels()
 
         setContent {
             WalletmanappTheme {
@@ -39,7 +41,8 @@ class MainActivity : ComponentActivity() {
                         transactionViewModel,
                         categoryViewModel,
                         subcategoryViewModel,
-                        analyticsViewModel
+                        analyticsViewModel,
+                        exportImportViewModel
                     )
                 }
             }
