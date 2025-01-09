@@ -1,6 +1,5 @@
 package com.xmichxl.walletmanapp.core.navigation
 
-import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -31,9 +30,7 @@ fun NavManager(
     categoryViewModel: CategoryViewModel,
     subcategoryViewModel: SubcategoryViewModel,
     analyticsViewModel: AnalyticsViewModel,
-    exportImportViewModel: ExportImportViewModel,
-    onExportClick: (Intent) -> Unit,
-    onImportClick: (Intent) -> Unit
+    exportImportViewModel: ExportImportViewModel
 ) {
 
     val navController = rememberNavController()
@@ -76,9 +73,7 @@ fun NavManager(
         // ************ EXPORT IMPORT
         composable("ExportImportHomeView") {
             ExportImportHomeView(
-                viewModel = exportImportViewModel,
-                onExportClick = onExportClick,
-                onImportClick = onImportClick
+                viewModel = exportImportViewModel
             )
         }
     }

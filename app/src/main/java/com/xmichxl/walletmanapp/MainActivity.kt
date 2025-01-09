@@ -1,12 +1,9 @@
 package com.xmichxl.walletmanapp
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,9 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var exportLauncher: ActivityResultLauncher<Intent>
-    private lateinit var importLauncher: ActivityResultLauncher<Intent>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -38,24 +32,6 @@ class MainActivity : ComponentActivity() {
         val analyticsViewModel: AnalyticsViewModel by viewModels()
         val exportImportViewModel: ExportImportViewModel by viewModels()
 
-
-        exportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    exportImportViewModel.exportData(uri)
-                }
-            }
-        }
-
-        importLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    exportImportViewModel.importData(uri)
-                }
-            }
-        }
-
-
         setContent {
             WalletmanappTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -66,9 +42,7 @@ class MainActivity : ComponentActivity() {
                         categoryViewModel,
                         subcategoryViewModel,
                         analyticsViewModel,
-                        exportImportViewModel,
-                        onExportClick = { exportLauncher.launch(it) },
-                        onImportClick = { importLauncher.launch(it) }
+                        exportImportViewModel
                     )
                 }
             }
