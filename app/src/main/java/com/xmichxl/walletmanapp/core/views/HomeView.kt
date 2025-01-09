@@ -1,6 +1,5 @@
 package com.xmichxl.walletmanapp.core.views
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding

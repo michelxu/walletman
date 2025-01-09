@@ -29,9 +29,10 @@ class AppModule {
     @Provides
     fun provideAccountTransactionRepository(
         accountDao: AccountDao,
-        transactionDao: TransactionDao
+        transactionDao: TransactionDao,
+        @ApplicationContext context: Context
     ): AccountTransactionRepository {
-        return AccountTransactionRepository(accountDao, transactionDao)
+        return AccountTransactionRepository(accountDao, transactionDao, context)
     }
 
     // Provide the AccountDao

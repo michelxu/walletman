@@ -21,6 +21,9 @@ interface TransactionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(transaction: Transaction)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(transactions: List<Transaction>)
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(transaction: Transaction)
 

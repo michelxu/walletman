@@ -73,6 +73,9 @@ dependencies {
     //    implementation ("co.yml:ycharts:2.1.0")
     implementation (libs.ycharts)
 
+    implementation("com.google.code.gson:gson:2.8.9")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

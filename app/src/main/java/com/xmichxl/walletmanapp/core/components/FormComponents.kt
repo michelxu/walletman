@@ -665,7 +665,8 @@ fun <K> FilterDropdown(
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
-            )
+            ),
+            singleLine = true // Prevents multi-line expansion
         )
 
         ExposedDropdownMenu(
