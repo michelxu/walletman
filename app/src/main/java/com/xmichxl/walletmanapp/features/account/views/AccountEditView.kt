@@ -44,7 +44,9 @@ import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_BALANCE
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CREDIT_LIMIT
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_NAME
 import com.xmichxl.walletmanapp.core.utils.TransactionType
+import com.xmichxl.walletmanapp.core.utils.formatDouble
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
+import com.xmichxl.walletmanapp.core.utils.roundToTwoDecimalPlaces
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.data.Account
 import com.xmichxl.walletmanapp.features.account.viewmodels.AccountViewModel
@@ -133,7 +135,7 @@ fun ContentAccountEditView(
     LaunchedEffect(selectedAccount) {
         name = selectedAccount.name
         number = selectedAccount.number ?: ""
-        balance = selectedAccount.balance.toString()
+        balance = formatDouble(selectedAccount.balance)
         creditLimit = selectedAccount.creditLimit?.toString() ?: ""
         type = selectedAccount.type
         selectedColor = selectedAccount.color
@@ -174,7 +176,7 @@ fun ContentAccountEditView(
 
         // ********************* BALANCE
         NumericTextField(
-            value = balance,
+            value = balance.toDouble().roundToTwoDecimalPlaces().toString(),
             onValueChange = { balance = it },
             label = if (type == AccountType.CREDIT.value) "Credit Available" else "Balance",
             maxLength = 9,
@@ -220,7 +222,7 @@ fun ContentAccountEditView(
                             name = name,
                             number = number,
                             type = type,
-                            balance = balance.toDouble(),
+                            balance = balance.toDouble().roundToTwoDecimalPlaces(),
                             creditLimit = creditLimit.toIntOrNull(),
                             color = selectedColor,
                             lastUpdated = getCurrentTimestamp()

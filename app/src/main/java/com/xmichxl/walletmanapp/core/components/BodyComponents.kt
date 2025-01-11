@@ -1,7 +1,8 @@
 package com.xmichxl.walletmanapp.core.components
 
 import android.graphics.Typeface
-import android.widget.Toast
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,22 +19,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,7 +49,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -326,6 +336,8 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = transaction.details.description ?: "No name",
+                maxLines = 1,
+                overflow =  TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (transaction.details.type == TransactionType.INCOME.value)
                     CColorGreen else MaterialTheme.colorScheme.onSurfaceVariant
@@ -422,11 +434,15 @@ fun CategoryAnalyticsDonutChart(
 
     if (categoryAnalytics.isEmpty()) {
         // Show a loading indicator or placeholder
-        CircularProgressIndicator(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
+                .padding(it), // Apply padding to the whole column
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = "No data")
+        }
     } else {
         // Map the categoryAnalytics to PieChartData.Slice
         val slices = categoryAnalytics.map { analytics ->
@@ -439,10 +455,12 @@ fun CategoryAnalyticsDonutChart(
         }
 
         // Create the chart data
-        val donutChartData = PieChartData(
-            slices = slices,
-            plotType = PlotType.Donut
-        )
+        val donutChartData = remember(categoryAnalytics) {
+            PieChartData(
+                slices = slices,
+                plotType = PlotType.Donut
+            )
+        }
 
         val donutChartConfig = PieChartConfig(
             labelVisible = true,
@@ -458,7 +476,7 @@ fun CategoryAnalyticsDonutChart(
         )
 
         // Render the chart
-        Column(modifier = Modifier.padding(it)) {
+        Column() {
             Legends(legendsConfig = DataUtils.getLegendsConfigFromPieChartData(pieChartData = donutChartData, 3))
 
             DonutPieChart(
@@ -466,15 +484,279 @@ fun CategoryAnalyticsDonutChart(
                     .padding(horizontal = 32.dp)
                     //.fillMaxWidth()
                     .width(500.dp)
-                    .height(500.dp),
+                    .height(350.dp),
                 donutChartData,
                 donutChartConfig
             ) { slice ->
-                Toast.makeText(context, slice.label, Toast.LENGTH_SHORT).show()
+                Log.d("donut", slice.label)
+                //Toast.makeText(context, slice.label, Toast.LENGTH_SHORT).show()
             }
         }
     }
 }
+
+
+@Composable
+fun CategoryList(
+    categories: List<CategoryAnalytics>,
+    onCategoryClick: (CategoryAnalytics) -> Unit
+) {
+    // Sort the categories by total amount spent in descending order
+    val sortedCategories = categories.sortedByDescending { it.total }
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3), // 3 items per row
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        items(sortedCategories) { category ->
+            CategoryBox(category = category, onClick = { onCategoryClick(category) })
+        }
+    }
+}
+
+@Composable
+fun CategoryBox(
+    category: CategoryAnalytics,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .aspectRatio(1f) // Ensures the box is a square
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Icon
+            Icon(
+                painter = painterResource(getIconFromString("", category.categoryIcon)),
+                contentDescription = category.categoryName,
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Category Name
+            Text(
+                text = category.categoryName,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            // Total Amount
+            Text(
+                text = "${category.total}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (category.total > 500) Color.Red else Color.Black,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun CategorySummary(category: CategoryAnalytics) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Main box for name and total spent
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+                .padding(16.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Icon inside a square box with rounded corners
+                Box(
+                    modifier = Modifier
+                        .size(48.dp) // Size of the square box
+                        .clip(RoundedCornerShape(8.dp)) // Rounded corners
+                        //.background(MaterialTheme.colorScheme.secondaryContainer) // Secondary color background
+                        .padding(8.dp), // Padding inside the box to fit the icon nicely
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Display category icon inside the box
+                    Icon(
+                        painter = painterResource(id = getIconFromString("", category.categoryIcon)), // Use the icon based on the category
+                        contentDescription = category.categoryName,
+                        modifier = Modifier.size(32.dp),
+                        tint = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Column for the title and total spent
+                Column {
+                    // Title - Category Name
+                    Text(
+                        text = category.categoryName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    // Total Spent
+                    Text(
+                        text = formatMoney(category.total),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Grid of smaller boxes
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Transactions count
+            item {
+                SummaryBox(
+                    label = "Transactions",
+                    value = category.transactionsCount.toString()
+                )
+            }
+            // Highest expense
+            item {
+                SummaryBox(
+                    label = "Highest Expense",
+                    value = "$${category.highestExpense.toInt()}"
+                )
+            }
+            // Average per transaction
+            item {
+                SummaryBox(
+                    label = "Avg/Transaction",
+                    value = "$${category.averagePerTransaction.toInt()}"
+                )
+            }
+            // Percentage of total spending
+            item {
+                SummaryBox(
+                    label = "% of Total",
+                    value = "${category.percentageOfTotal.toInt()} %"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SummaryBox(label: String, value: String) {
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
+            .padding(12.dp)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CategorySummaryPager(
+    categories: List<CategoryAnalytics>,
+    pagerState: PagerState,
+    onCategorySelected: (String) -> Unit // Returns the selected categoryId
+) {
+    // Track the current category ID
+    // remember(categories) adding categories as key refreshes the data and fixes the bug
+    val selectedCategoryId = remember(categories) {
+        derivedStateOf { categories[pagerState.currentPage].categoryId }
+    }
+
+    // Notify parent composable about the selected category
+    LaunchedEffect(pagerState.currentPage) {
+        val selectedCategory = if (pagerState.currentPage == 0) "All" else selectedCategoryId.value.toString()
+        onCategorySelected(selectedCategory)
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Horizontal Pager for Categories
+        HorizontalPager(
+            state = pagerState,
+            //modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.Top
+        ) { page ->
+            val category = categories[page]
+            CategorySummary(category)
+        }
+
+        // Custom Pager Indicator
+        CustomPagerIndicator(
+            pagerState = pagerState,
+            pageCount = categories.size,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CustomPagerIndicator(
+    pagerState: PagerState,
+    pageCount: Int,
+    modifier: Modifier = Modifier,
+    activeColor: Color = MaterialTheme.colorScheme.primary,
+    inactiveColor: Color = Color.Gray,
+    indicatorSize: Dp = 8.dp,
+    spacing: Dp = 8.dp
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        for (page in 0 until pageCount) {
+            Box(
+                modifier = Modifier
+                    .size(indicatorSize)
+                    .clip(CircleShape)
+                    .background(if (pagerState.currentPage == page) activeColor else inactiveColor)
+            )
+        }
+    }
+}
+
 
 
 // For displaying preview in

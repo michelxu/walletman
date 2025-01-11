@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -48,6 +52,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.xmichxl.walletmanapp.R
@@ -608,7 +613,9 @@ fun FilterRow(
             }
         }
 
-        Button(
+        MainIconButton(
+            modifier = Modifier.padding(start = 8.dp),
+            icon = Icons.Default.Refresh,
             onClick = {
                 selectedDateRange.value = "All"
                 filters["dateRange"] = "All"
@@ -620,16 +627,69 @@ fun FilterRow(
                 filters["accountId"] = "All"
                 onFilterApplied(filters)
             },
-            modifier = Modifier.padding(start = 8.dp).width(50.dp) // Set fixed width for button
-        ){ Text("R") }
+            background = ButtonBackground.Secondary,
+            size = 48.dp
+        )
 
-        // Apply button, now aligned at the right end
-        Button(
+        /*
+        MainIconButton(
+            modifier = Modifier.padding(start = 8.dp),
+            icon = AppIcons.Main.Search,
             onClick = { onFilterApplied(filters) },
-            modifier = Modifier.padding(start = 8.dp).width(50.dp) // Set fixed width for button
+            background = ButtonBackground.Secondary,
+            size = 48.dp
+        )
+         */
+    }
+}
+
+@Composable
+fun FilterAnalyticsRow(
+    selectedDateRange: MutableState<String>,
+    onFilterApplied: (Map<String, String>) -> Unit
+) {
+    val filters = remember { mutableStateMapOf<String, String>() }
+    val dateRangesMap = AppConstants.dateRangesFilter
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        // LazyRow for dropdowns, but with a fixed width
+        LazyRow(
+            modifier = Modifier.weight(1f) // Ensures it fills available space for the dropdowns
         ) {
-            Text(text = "S")
+            item {
+                FilterDropdown(
+                    label = "Date Range",
+                    selectedValue = selectedDateRange.value,
+                    options = dateRangesMap,
+                    onValueSelected = { id ->
+                        selectedDateRange.value = dateRangesMap[id] ?: ""
+                        filters["dateRange"] = id
+                        onFilterApplied(filters)
+                    },
+                    modifier = Modifier
+                        .wrapContentWidth(Alignment.Start)
+                        .width(180.dp) // Set fixed width for dropdown
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
         }
+
+        MainIconButton(
+            modifier = Modifier.padding(start = 8.dp),
+            icon = Icons.Default.Refresh,
+            onClick = {
+                selectedDateRange.value = "All"
+                filters["dateRange"] = "All"
+                onFilterApplied(filters)
+            },
+            background = ButtonBackground.Secondary,
+            size = 48.dp
+        )
     }
 }
 
@@ -666,7 +726,8 @@ fun <K> FilterDropdown(
                 containerColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
-            singleLine = true // Prevents multi-line expansion
+            singleLine = true, // Prevents multi-line expansion
+            maxLines = 1,
         )
 
         ExposedDropdownMenu(

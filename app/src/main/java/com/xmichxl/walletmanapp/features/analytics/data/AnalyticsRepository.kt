@@ -9,7 +9,7 @@ class AnalyticsRepository @Inject constructor(private val transactionDao: Transa
         return transactionDao.getTotalSpent(startDate, endDate)
     }
 
-    fun getCategoryAnalytics(startDate: String, endDate: String): Flow<List<CategoryAnalytics>> {
+    fun getCategoryAnalytics(startDate: String?, endDate: String?): Flow<List<CategoryAnalytics>> {
         return transactionDao.getCategoryAnalytics(startDate, endDate)
     }
 

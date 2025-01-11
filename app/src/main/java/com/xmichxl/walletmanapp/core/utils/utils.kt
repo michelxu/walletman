@@ -67,6 +67,7 @@ fun getIconFromString(transactionType: String, iconName: String): Int {
         iconName == "communication" -> AppIcons.Categories.Communication
         iconName == "bank" -> AppIcons.Categories.Financial
         iconName == "income" -> AppIcons.Categories.Income
+        iconName == "walletman" -> AppIcons.Main.Walletman
         iconName == "other" -> AppIcons.Categories.Other
 
         // Fallback to transaction type if iconName is not matched
@@ -152,7 +153,8 @@ fun getDateRangeFor(timeRange: String): Pair<String, String> {
         }
         "currentMonth" -> {
             val startOfMonth = today.withDayOfMonth(1).atStartOfDay().format(formatter)
-            val endOfMonth = today.atTime(23, 59).format(formatter)
+            val endOfMonth = today.withDayOfMonth(today.lengthOfMonth()).atTime(23, 59).format(formatter)
+            //val endOfMonth = today.atTime(23, 59).format(formatter)
             startOfMonth to endOfMonth
         }
         "lastMonth" -> {
@@ -161,7 +163,7 @@ fun getDateRangeFor(timeRange: String): Pair<String, String> {
             val endOfLastMonth = lastMonth.withDayOfMonth(lastMonth.lengthOfMonth()).atTime(23, 59).format(formatter)
             startOfLastMonth to endOfLastMonth
         }
-        else -> throw IllegalArgumentException("Invalid time range")
+        else -> throw IllegalArgumentException("Invalid time range: $timeRange")
     }
 }
 
@@ -175,4 +177,22 @@ fun Double?.formatMoney(): String {
         val formattedNumber = String.format("%,.2f", it) // Add commas and two decimals
         "$$formattedNumber" // Add the $ symbol
     } ?: "$0.00" // Default value for null
+}
+
+/**
+ * Formats a nullable Double value into a String.
+ * - If the Double is a whole number (e.g., 5.0), the decimals are removed.
+ * - If the Double has a fractional part, it is returned as is.
+ * - If the value is null, an empty string is returned.
+ *
+ * @param value The Double value to format.
+ * @return A String of the value without decimals if it's a whole number, or as a normal decimal string.
+ */
+fun formatDouble(value: Double?): String {
+    return value?.takeIf { it % 1.0 == 0.0 }?.toInt()?.toString() ?: value?.toString() ?: ""
+}
+
+
+fun Double.roundToTwoDecimalPlaces(): Double {
+    return String.format("%.2f", this).toDouble()
 }

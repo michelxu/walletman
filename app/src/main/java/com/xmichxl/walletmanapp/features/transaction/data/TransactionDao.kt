@@ -73,14 +73,31 @@ interface TransactionDao {
     fun getTotalSpent(startDate: String, endDate: String): Flow<Double?>
 
     @Query("""
-        SELECT t.categoryId, c.name AS categoryName, c.color AS categoryColor, c.icon AS categoryIcon, SUM(t.amount) AS total
+        SELECT 
+            t.categoryId, 
+            c.name AS categoryName, 
+            c.color AS categoryColor, 
+            c.icon AS categoryIcon, 
+            SUM(t.amount) AS total,
+            COUNT(t.id) AS transactionsCount,
+            MAX(t.amount) AS highestExpense,
+            AVG(t.amount) AS averagePerTransaction,
+           (SUM(t.amount) * 100.0 / 
+                (SELECT SUM(amount) 
+                 FROM transactions 
+                 WHERE type = 'Expense' 
+                 AND (:startDate IS NULL OR date >= :startDate) 
+                 AND (:endDate IS NULL OR date <= :endDate))
+           ) AS percentageOfTotal        
         FROM transactions t
         INNER JOIN categories c ON t.categoryId = c.id
-        WHERE t.type = 'Expense' AND t.date BETWEEN :startDate AND :endDate
+        WHERE t.type = 'Expense'
+        AND (:startDate IS NULL OR t.date >= :startDate)
+        AND (:endDate IS NULL OR t.date <= :endDate)
         GROUP BY t.categoryId, c.name, c.color, c.icon
         ORDER BY total DESC
     """)
-    fun getCategoryAnalytics(startDate: String, endDate: String): Flow<List<CategoryAnalytics>>
+    fun getCategoryAnalytics(startDate: String?, endDate: String?): Flow<List<CategoryAnalytics>>
 
     @Query("""
         SELECT date, SUM(amount) AS total
