@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,19 +81,20 @@ fun ContentTransactionHomeView(
     val filteredTransactions by transactionViewModel.filteredTransactions.collectAsState()
     val categoryList by transactionViewModel.categoryList.collectAsState()
     val accountList by accountViewModel.accountList.collectAsState()
-    var filters by remember { mutableStateOf(emptyMap<String, String>()) }
-    val dateRanges = AppConstants.dateRangesFilter
-    var timeRange by remember { mutableStateOf("currentMonth") }
-
     // FilterRow Selected
-    val selectedDateRange = remember { mutableStateOf("All") }
+    val selectedDateRange = remember { mutableStateOf("Current Month") }
     val selectedType = remember { mutableStateOf("All") }
     val selectedAccount = remember { mutableStateOf("All") }
     val selectedCategory = remember { mutableStateOf("All") }
 
+    val initialFilters = remember { mutableStateMapOf<String, String>() }
+    initialFilters["dateRange"] = "currentMonth"
+
+
     LaunchedEffect(Unit) {
         transactionViewModel.loadCategoriesIfNeeded()
-        transactionViewModel.getTransactionsWithDetails()
+        //transactionViewModel.getTransactionsWithDetails()
+        transactionViewModel.applyFilters(initialFilters) //Data inicial
     }
     Log.d("transactions home", transactionListWithDetails.toString())
     Log.d("filteredTransactions", filteredTransactions.toString())

@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import com.xmichxl.walletmanapp.R
 import com.xmichxl.walletmanapp.ui.theme.CColorBlack
 import com.xmichxl.walletmanapp.ui.theme.CColorBlue
@@ -116,6 +117,7 @@ object AppIcons {
         val Back = Icons.AutoMirrored.Filled.ArrowBack
         val Add = Icons.Default.Add
         val BarChart = R.drawable.bar_chart
+        val Search = Icons.Default.Search
     }
 
     object Transaction {

@@ -176,3 +176,16 @@ fun Double?.formatMoney(): String {
         "$$formattedNumber" // Add the $ symbol
     } ?: "$0.00" // Default value for null
 }
+
+/**
+ * Formats a nullable Double value into a String.
+ * - If the Double is a whole number (e.g., 5.0), the decimals are removed.
+ * - If the Double has a fractional part, it is returned as is.
+ * - If the value is null, an empty string is returned.
+ *
+ * @param value The Double value to format.
+ * @return A String of the value without decimals if it's a whole number, or as a normal decimal string.
+ */
+fun formatDouble(value: Double?): String {
+    return value?.takeIf { it % 1.0 == 0.0 }?.toInt()?.toString() ?: value?.toString() ?: ""
+}

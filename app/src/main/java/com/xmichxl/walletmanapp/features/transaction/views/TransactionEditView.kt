@@ -39,6 +39,7 @@ import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CATEGORY
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_DESCRIPTION
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_SUBCATEGORY
 import com.xmichxl.walletmanapp.core.utils.TransactionType
+import com.xmichxl.walletmanapp.core.utils.formatDouble
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.data.Account
@@ -170,7 +171,7 @@ fun ContentEditAddView(
     LaunchedEffect(selectedTransactionWithDetails, selectedAccountFrom, selectedAccountTo) {
         typeState = selectedTransactionWithDetails?.details?.type ?: ""
         descriptionState = selectedTransactionWithDetails?.details?.description ?: ""
-        amountState = selectedTransactionWithDetails?.details?.amount?.toString() ?: ""
+        amountState = formatDouble(selectedTransactionWithDetails?.details?.amount)//selectedTransactionWithDetails?.details?.amount?.toString() ?: ""
         dateState = selectedTransactionWithDetails?.details?.date ?: ""
         accountFromState = selectedAccountFrom?.getDisplayName() ?: ""
         accountToState = selectedAccountTo?.getDisplayName() ?: ""

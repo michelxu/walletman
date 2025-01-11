@@ -42,7 +42,7 @@ class AnalyticsViewModel @Inject constructor(private val analyticsRepository: An
 
     fun getCategoryAnalytics(timeRange: String) {
         viewModelScope.launch {
-            val (startDate, endDate) = getDateRangeFor(timeRange)
+            val (startDate, endDate) = if (timeRange == "All") null to null else getDateRangeFor(timeRange)
 
             analyticsRepository.getCategoryAnalytics(startDate, endDate).collect { data ->
                 _categoryAnalytics.value = data

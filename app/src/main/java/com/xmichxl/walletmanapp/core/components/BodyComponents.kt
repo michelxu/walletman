@@ -1,6 +1,7 @@
 package com.xmichxl.walletmanapp.core.components
 
 import android.graphics.Typeface
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -422,11 +424,15 @@ fun CategoryAnalyticsDonutChart(
 
     if (categoryAnalytics.isEmpty()) {
         // Show a loading indicator or placeholder
-        CircularProgressIndicator(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
+                .padding(it), // Apply padding to the whole column
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = "No data")
+        }
     } else {
         // Map the categoryAnalytics to PieChartData.Slice
         val slices = categoryAnalytics.map { analytics ->
@@ -439,10 +445,12 @@ fun CategoryAnalyticsDonutChart(
         }
 
         // Create the chart data
-        val donutChartData = PieChartData(
-            slices = slices,
-            plotType = PlotType.Donut
-        )
+        val donutChartData = remember(categoryAnalytics) {
+            PieChartData(
+                slices = slices,
+                plotType = PlotType.Donut
+            )
+        }
 
         val donutChartConfig = PieChartConfig(
             labelVisible = true,
@@ -458,7 +466,7 @@ fun CategoryAnalyticsDonutChart(
         )
 
         // Render the chart
-        Column(modifier = Modifier.padding(it)) {
+        Column() {
             Legends(legendsConfig = DataUtils.getLegendsConfigFromPieChartData(pieChartData = donutChartData, 3))
 
             DonutPieChart(
@@ -466,12 +474,74 @@ fun CategoryAnalyticsDonutChart(
                     .padding(horizontal = 32.dp)
                     //.fillMaxWidth()
                     .width(500.dp)
-                    .height(500.dp),
+                    .height(350.dp),
                 donutChartData,
                 donutChartConfig
             ) { slice ->
-                Toast.makeText(context, slice.label, Toast.LENGTH_SHORT).show()
+                Log.d("donut", slice.label)
+                //Toast.makeText(context, slice.label, Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+}
+
+
+@Composable
+fun CategoryList(categories: List<CategoryAnalytics>) {
+    // Sort the categories by total amount spent in descending order
+    val sortedCategories = categories.sortedByDescending { it.total }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        sortedCategories.forEach { category ->
+            CategoryRow(category = category)
+        }
+    }
+}
+
+@Composable
+fun CategoryRow(category: CategoryAnalytics) {
+    // Calculate a background color based on the total to highlight higher expenses
+    val backgroundColor = if (category.total > 500) Color.LightGray else Color.Transparent
+    val totalTextColor = if (category.total > 500) Color.Red else Color.Black // Highlight higher totals
+    val icon = getIconFromString("", category.categoryIcon)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(backgroundColor, shape = RoundedCornerShape(8.dp))
+            .padding(8.dp)
+            .height(70.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Square box with rounded corners
+        Box(
+            modifier = Modifier
+                .size(48.dp) // Size of the rounded square
+                .clip(RoundedCornerShape(12.dp)) // Rounded corners
+                .background(MaterialTheme.colorScheme.primary), // Secondary color background
+            contentAlignment = Alignment.Center
+        ) {
+            // Icon inside the box
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = category.categoryName,
+                modifier = Modifier.size(24.dp), // Icon size
+                tint = Color.White // Icon color
+            )
+
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Category name and total
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(text = category.categoryName, fontWeight = FontWeight.Bold)
+            Text(
+                text = "${category.total}",
+                color = totalTextColor, // Color to highlight higher totals
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }

@@ -44,6 +44,7 @@ import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_BALANCE
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_CREDIT_LIMIT
 import com.xmichxl.walletmanapp.core.utils.FORM_ERROR_NAME
 import com.xmichxl.walletmanapp.core.utils.TransactionType
+import com.xmichxl.walletmanapp.core.utils.formatDouble
 import com.xmichxl.walletmanapp.core.utils.getCurrentTimestamp
 import com.xmichxl.walletmanapp.core.utils.validateInput
 import com.xmichxl.walletmanapp.features.account.data.Account
@@ -133,7 +134,7 @@ fun ContentAccountEditView(
     LaunchedEffect(selectedAccount) {
         name = selectedAccount.name
         number = selectedAccount.number ?: ""
-        balance = selectedAccount.balance.toString()
+        balance = formatDouble(selectedAccount.balance)
         creditLimit = selectedAccount.creditLimit?.toString() ?: ""
         type = selectedAccount.type
         selectedColor = selectedAccount.color
