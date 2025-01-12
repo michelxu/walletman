@@ -5,5 +5,9 @@ data class CategoryAnalytics(
     val categoryName: String,
     val categoryColor: String,
     val categoryIcon: String,
-    val total: Double
+    val total: Double,
+    val transactionsCount: Int,
+    val highestExpense: Double,
+    val averagePerTransaction: Double,
+    val percentageOfTotal: Double
 )
