@@ -161,7 +161,7 @@ fun getDateRangeFor(timeRange: String): Pair<String, String> {
             val endOfLastMonth = lastMonth.withDayOfMonth(lastMonth.lengthOfMonth()).atTime(23, 59).format(formatter)
             startOfLastMonth to endOfLastMonth
         }
-        else -> throw IllegalArgumentException("Invalid time range")
+        else -> throw IllegalArgumentException("Invalid time range: $timeRange")
     }
 }
 

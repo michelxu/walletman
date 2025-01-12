@@ -2,6 +2,7 @@ package com.xmichxl.walletmanapp.core.components
 
 import android.graphics.Typeface
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -34,6 +38,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +52,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -679,6 +686,73 @@ fun SummaryBox(label: String, value: String) {
         }
     }
 }
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CategorySummaryPager(
+    categories: List<CategoryAnalytics>,
+    onCategorySelected: (String) -> Unit // Returns the selected categoryId
+) {
+    val pagerState = rememberPagerState { categories.size }
+    // Track the current category ID
+    val selectedCategoryId = remember {
+        derivedStateOf { categories[pagerState.currentPage].categoryId }
+    }
+
+    // Notify parent composable about the selected category
+    LaunchedEffect(pagerState.currentPage) {
+        onCategorySelected(selectedCategoryId.value.toString())
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Custom Pager Indicator
+        CustomPagerIndicator(
+            pagerState = pagerState,
+            pageCount = categories.size,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(4.dp)
+        )
+
+        // Horizontal Pager for Categories
+        HorizontalPager(
+            state = pagerState,
+            //modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.Top
+        ) { page ->
+            val category = categories[page]
+            CategorySummary(category)
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CustomPagerIndicator(
+    pagerState: PagerState,
+    pageCount: Int,
+    modifier: Modifier = Modifier,
+    activeColor: Color = MaterialTheme.colorScheme.primary,
+    inactiveColor: Color = Color.Gray,
+    indicatorSize: Dp = 8.dp,
+    spacing: Dp = 8.dp
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        for (page in 0 until pageCount) {
+            Box(
+                modifier = Modifier
+                    .size(indicatorSize)
+                    .clip(CircleShape)
+                    .background(if (pagerState.currentPage == page) activeColor else inactiveColor)
+            )
+        }
+    }
+}
+
 
 
 // For displaying preview in
