@@ -175,8 +175,8 @@ class TransactionViewModel @Inject constructor(
 
         Log.d("daterange: ", dateRange.toString())
         Log.d("type: ", type.toString())
-        Log.d("account: ", accountId.toString())
-        Log.d("category: ", categoryId.toString())
+        Log.d("account id: ", accountId.toString())
+        Log.d("category id: ", categoryId.toString())
 
         viewModelScope.launch {
             repository.getFilteredTransactions(startDate, endDate, accountId?.toInt(), type, categoryId?.toInt())

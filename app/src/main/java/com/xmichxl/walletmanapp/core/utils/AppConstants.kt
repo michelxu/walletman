@@ -118,6 +118,7 @@ object AppIcons {
         val Add = Icons.Default.Add
         val BarChart = R.drawable.bar_chart
         val Search = Icons.Default.Search
+        val Walletman = R.drawable.bar_chart
     }
 
     object Transaction {

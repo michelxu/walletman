@@ -67,6 +67,7 @@ fun getIconFromString(transactionType: String, iconName: String): Int {
         iconName == "communication" -> AppIcons.Categories.Communication
         iconName == "bank" -> AppIcons.Categories.Financial
         iconName == "income" -> AppIcons.Categories.Income
+        iconName == "walletman" -> AppIcons.Main.Walletman
         iconName == "other" -> AppIcons.Categories.Other
 
         // Fallback to transaction type if iconName is not matched
@@ -152,7 +153,8 @@ fun getDateRangeFor(timeRange: String): Pair<String, String> {
         }
         "currentMonth" -> {
             val startOfMonth = today.withDayOfMonth(1).atStartOfDay().format(formatter)
-            val endOfMonth = today.atTime(23, 59).format(formatter)
+            val endOfMonth = today.withDayOfMonth(today.lengthOfMonth()).atTime(23, 59).format(formatter)
+            //val endOfMonth = today.atTime(23, 59).format(formatter)
             startOfMonth to endOfMonth
         }
         "lastMonth" -> {

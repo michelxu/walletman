@@ -45,7 +45,26 @@ class AnalyticsViewModel @Inject constructor(private val analyticsRepository: An
             val (startDate, endDate) = if (timeRange == "All") null to null else getDateRangeFor(timeRange)
 
             analyticsRepository.getCategoryAnalytics(startDate, endDate).collect { data ->
-                _categoryAnalytics.value = data
+                // Calculate the "All" category
+                val totalSpent = data.sumOf { it.total }
+                val totalTransactions = data.sumOf { it.transactionsCount }
+                val highestExpense = data.maxOfOrNull { it.highestExpense } ?: 0.0
+                val averagePerTransaction = if (totalTransactions > 0) totalSpent / totalTransactions else 0.0
+
+                val allCategory = CategoryAnalytics(
+                    categoryId = 0,  // Use 0 or a unique ID for the "All" category
+                    categoryName = "All",
+                    categoryColor = "Gray",
+                    categoryIcon = "walletman",
+                    total = totalSpent,
+                    transactionsCount = totalTransactions,
+                    highestExpense = highestExpense,
+                    averagePerTransaction = averagePerTransaction,
+                    percentageOfTotal = 100.0
+                )
+
+                // Update the state with the "All" category at the top of the list
+                _categoryAnalytics.value = listOf(allCategory) + data
             }
         }
     }

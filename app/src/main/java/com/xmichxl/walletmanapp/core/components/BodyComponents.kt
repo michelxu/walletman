@@ -27,7 +27,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -51,6 +50,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -336,6 +336,8 @@ fun TransactionItem(transaction: TransactionWithDetails, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = transaction.details.description ?: "No name",
+                maxLines = 1,
+                overflow =  TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (transaction.details.type == TransactionType.INCOME.value)
                     CColorGreen else MaterialTheme.colorScheme.onSurfaceVariant
@@ -568,7 +570,7 @@ fun CategorySummary(category: CategoryAnalytics) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         // Main box for name and total spent
         Box(
@@ -604,7 +606,7 @@ fun CategorySummary(category: CategoryAnalytics) {
                     // Title - Category Name
                     Text(
                         text = category.categoryName,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -621,7 +623,7 @@ fun CategorySummary(category: CategoryAnalytics) {
         }
 
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Grid of smaller boxes
         LazyVerticalGrid(
@@ -642,14 +644,14 @@ fun CategorySummary(category: CategoryAnalytics) {
             item {
                 SummaryBox(
                     label = "Highest Expense",
-                    value = formatMoney(category.highestExpense)
+                    value = "$${category.highestExpense.toInt()}"
                 )
             }
             // Average per transaction
             item {
                 SummaryBox(
                     label = "Avg/Transaction",
-                    value = formatMoney(category.averagePerTransaction)
+                    value = "$${category.averagePerTransaction.toInt()}"
                 )
             }
             // Percentage of total spending
@@ -692,29 +694,22 @@ fun SummaryBox(label: String, value: String) {
 @Composable
 fun CategorySummaryPager(
     categories: List<CategoryAnalytics>,
+    pagerState: PagerState,
     onCategorySelected: (String) -> Unit // Returns the selected categoryId
 ) {
-    val pagerState = rememberPagerState { categories.size }
     // Track the current category ID
-    val selectedCategoryId = remember {
+    // remember(categories) adding categories as key refreshes the data and fixes the bug
+    val selectedCategoryId = remember(categories) {
         derivedStateOf { categories[pagerState.currentPage].categoryId }
     }
 
     // Notify parent composable about the selected category
     LaunchedEffect(pagerState.currentPage) {
-        onCategorySelected(selectedCategoryId.value.toString())
+        val selectedCategory = if (pagerState.currentPage == 0) "All" else selectedCategoryId.value.toString()
+        onCategorySelected(selectedCategory)
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Custom Pager Indicator
-        CustomPagerIndicator(
-            pagerState = pagerState,
-            pageCount = categories.size,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(4.dp)
-        )
-
         // Horizontal Pager for Categories
         HorizontalPager(
             state = pagerState,
@@ -724,6 +719,15 @@ fun CategorySummaryPager(
             val category = categories[page]
             CategorySummary(category)
         }
+
+        // Custom Pager Indicator
+        CustomPagerIndicator(
+            pagerState = pagerState,
+            pageCount = categories.size,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp)
+        )
     }
 }
 
