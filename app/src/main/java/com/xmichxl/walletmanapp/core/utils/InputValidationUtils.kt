@@ -14,6 +14,8 @@ fun validateInput(
 
 fun filterDecimals(input: String): String {
     return input.filterIndexed { index, char ->
-        char.isDigit() || (char == '.' && !input.substring(0, index).contains('.'))
+        char.isDigit() ||
+                (char == '.' && !input.substring(0, index).contains('.')) ||
+                (char == '-' && index == 0) // Allow negative sign only at the beginning
     }
 }

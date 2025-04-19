@@ -191,3 +191,8 @@ fun Double?.formatMoney(): String {
 fun formatDouble(value: Double?): String {
     return value?.takeIf { it % 1.0 == 0.0 }?.toInt()?.toString() ?: value?.toString() ?: ""
 }
+
+
+fun Double.roundToTwoDecimalPlaces(): Double {
+    return String.format("%.2f", this).toDouble()
+}
